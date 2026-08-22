@@ -68,7 +68,30 @@ make check
 ```
 
 Runs the tests, regenerates everything and fails if what is committed has
-drifted from what the code produces. CI runs the same check on every push.
+drifted from what the code produces. This is the check to run before
+committing, and it is the check that matters most: a repository full of
+committed CSVs that no longer match the code is worse than one with no CSVs at
+all, because it looks authoritative.
+
+### A note on CI
+
+`.github/workflows/ci.yml` is committed and complete: tests across three Python
+versions, a job that regenerates every output and fails if the committed
+results have drifted, and a job that fails if any number the README quotes
+stops being true.
+
+**It does not currently run.** This repository is private, and GitHub Actions
+jobs on it are failing to be assigned a runner, which on a personal plan means
+the private repository Actions allowance is exhausted or the spending limit is
+zero. The jobs fail in two seconds having executed no steps. Nothing about that
+is a problem with the workflow.
+
+Every step of it has been run locally instead, on Python 3.9 with numpy 1.26
+and on Python 3.12 with numpy 2.5: 99 tests pass on both, `run_all.py`
+regenerates byte identical outputs on both, the staleness check comes back
+clean, all eighteen plots are produced, and `scripts/check_headline.py` passes.
+The equivalent one liner is `make check`. When the repository goes public, or
+the allowance resets, the workflow will run as written.
 
 ---
 

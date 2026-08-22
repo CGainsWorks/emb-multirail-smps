@@ -62,9 +62,23 @@ EMC**, with the input filter also checked against Middlebrook's criterion.
 
 **Test suite.** 99 tests, no hardware needed, running in about 50 seconds.
 
-**CI.** Tests on Python 3.9, 3.11 and 3.12; a job that regenerates every output
-and fails if what is committed has drifted from what the code produces; and a
-job that fails if any number the README quotes stops being true.
+**CI workflow, written and verified locally but not running.** The workflow
+covers tests across three Python versions, regeneration of every output with a
+failure if the committed results have drifted, and a guard that fails if any
+number the README quotes stops being true.
+
+It has not run on GitHub. This repository is private and its Actions jobs are
+not being assigned a runner, which on a personal plan means the private
+repository allowance is exhausted or the spending limit is zero: every job
+fails in two seconds having executed no steps, with `ubuntu-latest` and with a
+pinned runner label alike, while Actions is enabled on the repository. That is
+a billing state, not a workflow defect.
+
+Every step has been run locally instead, on Python 3.9 with numpy 1.26 and on
+Python 3.12 with numpy 2.5. Both give 99 passing tests and byte identical
+generated outputs. `make check` is the local equivalent of the CI job and it
+passes. Python 3.11 is in the matrix but has not been run anywhere, so treat
+that row as untested rather than passing.
 
 ---
 
