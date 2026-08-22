@@ -1,0 +1,9 @@
+{
+  "system_efficiency_nom_pct": 87.9,
+  "total_loss_nom_w": 2.952,
+  "useful_output_w": 21.45,
+  "max_ambient_full_load_c": 85.7,
+  "worst_emc_margin_db": 4.72,
+  "worst_emc_v_in_v": 8.0,
+  "worst_middlebrook_separation_db": 14.57
+}

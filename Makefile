@@ -1,0 +1,45 @@
+# Everything this repository produces comes from `make demo`.
+PY ?= python
+
+.DEFAULT_GOAL := help
+
+help:
+	@echo "make setup   install the dependencies"
+	@echo "make demo    regenerate every result, plot, CSV and generated document"
+	@echo "make quick   the same without the switching simulator sweeps"
+	@echo "make test    run the test suite"
+	@echo "make check   test, then demo, then confirm nothing changed"
+	@echo "make clean   remove generated outputs"
+
+setup:
+	$(PY) -m pip install -r requirements.txt
+
+demo:
+	$(PY) simulation/run_all.py
+
+quick:
+	$(PY) simulation/run_all.py --quick
+
+test:
+	$(PY) -m pytest tests -q
+
+# The check a reviewer should run: the results in the repository have to be
+# exactly what the code produces today, not what it produced when somebody
+# last remembered to regenerate them.
+check: test demo
+	@changed=$$(git status --porcelain -- outputs test-results docs/spec.md \
+		docs/validation_report.md | grep -v '\.png$$' || true); \
+	if [ -n "$$changed" ]; then \
+		echo "generated outputs are stale, commit the regenerated files:"; \
+		echo "$$changed"; exit 1; \
+	else echo "committed outputs match a fresh run"; fi
+
+clean:
+	rm -rf outputs/netlists outputs/*.csv outputs/*.json
+	rm -rf test-results/bode test-results/efficiency test-results/thermal
+	rm -rf test-results/emc-prescan test-results/load-regulation
+	rm -rf test-results/line-regulation test-results/transient
+	rm -f test-results/power_tree.png
+	rm -rf .pytest_cache **/__pycache__
+
+.PHONY: help setup demo quick test check clean

@@ -1,0 +1,20 @@
+quantity,unit,required,chosen,direction,margin_pct,pass,note
+"L, +5V buck",H,5.74074e-06,6.8e-06,chosen >= required,18.45,True,30% ripple at Vin(max) = 36 V
+"Inductor Isat headroom, +5V",A,5.63317,9,chosen >= required,59.77,True,peak = Iout + dI/2 = 5.633 A
+"Cout, +5V buck",F,2.11057e-05,4.62e-05,chosen >= required,118.9,True,capacitive share of the ripple budget
+"Output ripple, +5V",Vpp,0.025,0.00769672,chosen <= required,69.21,True,"capacitive plus ESR, steady state"
+"Load step deviation, +5V",V,0.15,0.103347,chosen <= required,31.1,True,dI/(2*pi*fc*Cout) at fc = 50 kHz
+"L, +3V3 buck",H,1.24667e-06,1.5e-06,chosen >= required,20.32,True,"30% ripple, fixed 5 V input"
+"Inductor Isat headroom, +3V3",A,3.374,6,chosen >= required,77.83,True,peak = 3.374 A
+"Cout, +3V3 buck",F,7.79167e-06,3.3e-05,chosen >= required,323.53,True,
+"Output ripple, +3V3",Vpp,0.02,0.00358133,chosen <= required,82.09,True,
+"Load step deviation, +3V3",V,0.1,0.0482288,chosen <= required,51.77,True,
+"fc / f_LC ratio, +3V3",-,3,4.42061,chosen >= required,47.35,True,"f_LC = 22.62 kHz, needs enough separation for Type III"
+"L, +12V boost",H,2.17014e-05,2.2e-05,chosen >= required,1.38,True,"35% of IL = 0.960 A, raised from 30 % to keep the RHP zero high"
+"Inductor Isat headroom, +12V",A,1.12572,2.5,chosen >= required,122.08,True,peak = 1.126 A
+"Cout, +12V boost",F,1.94444e-05,2.42e-05,chosen >= required,24.46,True,
+"Output ripple, +12V",Vpp,0.05,0.0257933,chosen <= required,48.41,True,
+"f_RHPZ / fc ratio, +12V",-,5,6.27979,chosen >= required,25.6,True,f_RHPZ = 37.68 kHz at full load
+"Load step deviation, +12V",V,0.3,0.219222,chosen <= required,26.93,True,
+"Dropout headroom, +1V8A",V,0.25,1.2987,chosen >= required,419.48,True,"worst case 3V3 low, less 168 mV across the input filter resistor"
+"LDO dissipation, +1V8A",W,1,0.75,chosen <= required,25.0,True,"package limit assumption, confirm with the real thermal pad"

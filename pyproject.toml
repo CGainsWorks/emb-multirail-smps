@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smps"
+version = "0.1.0"
+description = "Multi-rail SMPS design, small signal models and switching simulation"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.24,<3",
+    "scipy>=1.10,<2",
+    "matplotlib>=3.7,<4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[tool.setuptools]
+package-dir = { "" = "simulation" }
+
+[tool.setuptools.packages.find]
+where = ["simulation"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Fail on deprecations raised from this project's own code, but do not
+# fail the build because a third party library deprecated something.
+filterwarnings = ["error::DeprecationWarning:smps.*"]

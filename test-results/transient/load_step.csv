@@ -1,0 +1,4 @@
+rail,step_a,undershoot_mv,overshoot_mv,limit_mv,settle_time_us,settle_limit_us
++5V,1.5,99.68,2.52,150.0,32.28,100.0
++3V3,1.0,41.62,2.29,100.0,5.4,50.0
++12V,0.2,198.99,12.13,300.0,226.47,1000.0

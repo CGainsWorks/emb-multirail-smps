@@ -1,0 +1,4 @@
+v_in_v,worst_margin_db,worst_frequency_hz,filter_z_out_peak_ohm,filter_z_out_peak_hz,converter_z_in_ohm,middlebrook_separation_db
+8.0,4.72,500000.0,0.5006,3147.7,2.679,14.57
+24.0,8.05,500000.0,0.5006,3147.7,23.605,33.47
+36.0,11.2,500000.0,0.5006,3147.7,52.298,40.38

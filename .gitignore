@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# Altium, for when a project exists
+History/
+Project Logs*/
+*.PcbDoc.bak
+*.SchDoc.bak
+__Previews/
+
+# SPICE run artefacts, the decks themselves are committed
+*.raw
+*.log
+*.op.raw
+*.net.txt
+
+# OS
+.DS_Store
+Thumbs.db

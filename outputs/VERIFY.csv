@@ -1,0 +1,28 @@
+ref,description,candidate_mpn,must_verify_before_ordering
+U1,"Synchronous buck controller, peak current mode, external compensation, 6-75 V",TI LM5145 (candidate),"Vin range, COMP pin gm, internal ramp/slope-comp behaviour, SS timing"
+"Q1,Q2","N-channel MOSFET, 60 V, 11 mOhm, PowerPAK/SON 3.3x3.3",TI CSD18543Q3A (candidate),"Rds(on) at Vgs=7.5 V and 100 C, Qg, Qoss, thermal pad Rth"
+L1,"Shielded power inductor, 6.8 uH, 9 A saturation, 11 mOhm DCR",Coilcraft XAL6060-682 (candidate),"Isat at 125 C, DCR at 100 C, core loss coefficients"
+Rs1,"Current sense shunt, 5 mOhm, 1 %, 2 W, 4 terminal",Vishay WSL2512 (candidate),"Tolerance, TCR, power rating with the actual copper pour"
+U2,"Current sense amplifier, gain 10",TI INA declared TBD (candidate),"Bandwidth must exceed 5x fsw, input CM range covers the switch node side"
+"C1,C2",MLCC 10 uF 50 V X7R,TBD,DC bias derating at 24 V and 36 V - the 0.45 factor used here is an assumption
+C3,"Aluminium polymer 220 uF 50 V, 15 mOhm ESR",TBD,"ESR over temperature and its spread, ripple current rating. This part damps the input filter, so a low ESR substitute is not a safe swap"
+L4,"Differential mode input inductor, 10 uH, 3 A, 40 mOhm",TBD,"Saturation current at 3 A, self resonant frequency above 30 MHz"
+C12,Film capacitor 2.2 uF 63 V X2 style,TBD,"Self resonance, ESL. Placed at the connector, not next to the FETs"
+C4-C6,MLCC 22 uF 25 V X7R,TBD,DC bias derating at 5 V - the 0.70 factor used here is an assumption
+"Rc1,Cc1,Cp1","Type II compensation network, +5V rail",-,"Design choice, not a part property. Values from smps.compensation"
+U3,"Synchronous buck regulator, voltage mode, 6 V in, 3 A, integrated FETs",TBD,"Ramp amplitude Vramp, error amp GBW, Rds(on) of both FETs"
+L2,"Shielded power inductor, 1.5 uH, 6 A saturation, 15 mOhm DCR",Coilcraft XAL4020-152 (candidate),"Isat, DCR, core loss at 1 MHz"
+"C7,C8",MLCC 22 uF 16 V X7R,TBD,DC bias derating at 3.3 V - the 0.75 factor used here is an assumption
+"R1,R3,Rf,Cf1,Cf2,Cf3","Type III compensation network, +3V3 rail",-,"Design choice, not a part property. Values from smps.compensation"
+U4,"Synchronous boost controller, peak current mode",TBD,"Minimum on time, maximum duty clamp, slope compensation"
+"Q3,Q4","N-channel MOSFET, 30 V, 40 mOhm",TBD,"Rds(on) at Vgs=5 V, Qg, Qoss"
+L3,"Shielded power inductor, 22 uH, 2.5 A saturation, 45 mOhm DCR",TBD,"Isat, DCR, core loss at 400 kHz"
+"C9,C10",MLCC 22 uF 25 V X7R,TBD,DC bias derating at 12 V - the 0.55 factor used here is an assumption
+U5,"Low noise LDO, 1.8 V fixed or adjustable, 0.5 A",TBD,"Stability envelope over Cout and load, PSRR at 500 kHz, dropout at 0.5 A"
+C11,MLCC 10 uF 6.3 V X7R,TBD,DC bias derating at 1.8 V
+Rf1,"LDO input filter resistor, 0.33 ohm 1 %, 1 W",-,"Design choice. Power rating at 0.51 A, and the headroom it costs"
+C13,"MLCC 10 uF 16 V X7R, LDO input filter capacitor",TBD,DC bias derating at 3.3 V
+Rpl,"Preload resistor, 180 ohm, holds 10 mA minimum LDO load",-,Design choice. Confirm the chosen LDO actually needs a preload
+FB1,"Common mode choke, 2 x 100 uH, 2 A",TBD,"Leakage inductance, saturation current, self resonance"
+J1,"Input connector, 40 V, 2 A",TBD,"Current rating, creepage"
+J2,"Output connector, 4 rails plus returns",TBD,Current rating

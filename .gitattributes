@@ -1,0 +1,22 @@
+# Text, and diffable. Everything generated in this repository is text or a
+# small PNG, so nothing here needs Git LFS today.
+*.md      text eol=lf
+*.py      text eol=lf
+*.csv     text eol=lf
+*.cir     text eol=lf
+*.net     text eol=lf
+*.json    text eol=lf
+*.sh      text eol=lf
+*.yml     text eol=lf
+
+# Binary. Plots are a few tens of kilobytes each and live in history.
+*.png     binary
+
+# If Altium files, fabrication packs or 3D models are ever added they go to
+# Git LFS rather than into history. Install it first: git lfs install
+*.PcbDoc   filter=lfs diff=lfs merge=lfs -text
+*.SchDoc   filter=lfs diff=lfs merge=lfs -text
+*.PrjPcb   filter=lfs diff=lfs merge=lfs -text
+*.pdf      filter=lfs diff=lfs merge=lfs -text
+*.step     filter=lfs diff=lfs merge=lfs -text
+*.zip      filter=lfs diff=lfs merge=lfs -text

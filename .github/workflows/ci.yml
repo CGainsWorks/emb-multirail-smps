@@ -1,0 +1,146 @@
+name: design
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Model and design tests
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run tests
+        run: python -m pytest tests -q --durations=10
+
+  regenerate:
+    name: Regenerate outputs and check they match what is committed
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Regenerate everything
+        run: python simulation/run_all.py
+
+      # The numbers in this repository have to be the ones the code produces
+      # today. Committed CSVs and generated documents that have drifted away
+      # from the code are worse than no CSVs at all, because they look
+      # authoritative. Plots are excluded from the comparison because matplotlib
+      # does not render byte identically across versions and fonts.
+      - name: Check generated text outputs are current
+        run: |
+          changed=$(git status --porcelain -- \
+            outputs test-results docs/spec.md docs/validation_report.md \
+            | grep -v '\.png$' || true)
+          if [ -n "$changed" ]; then
+            echo "::error::Generated outputs are stale. Run 'make demo' and commit the result."
+            echo "$changed"
+            git diff -- outputs test-results docs/spec.md \
+              docs/validation_report.md ':!*.png' | head -120
+            exit 1
+          fi
+          echo "committed outputs match a fresh run"
+
+      - name: Check every plot was produced
+        run: |
+          missing=0
+          for f in \
+            test-results/power_tree.png \
+            test-results/bode/5v_loop_gain.png \
+            test-results/bode/3v3_loop_gain.png \
+            test-results/bode/12v_loop_gain.png \
+            test-results/bode/1v8a_ldo_loop_gain.png \
+            test-results/bode/1v8a_ldo_psrr.png \
+            test-results/efficiency/stage_efficiency.png \
+            test-results/efficiency/system_efficiency.png \
+            test-results/efficiency/loss_breakdown.png \
+            test-results/thermal/junction_temperatures.png \
+            test-results/thermal/ambient_derating.png \
+            test-results/emc-prescan/conducted_prescan.png \
+            test-results/emc-prescan/input_filter_middlebrook.png \
+            test-results/load-regulation/load_regulation.png \
+            test-results/line-regulation/line_regulation_5v.png \
+            test-results/transient/5v_load_step.png \
+            test-results/transient/3v3_load_step.png \
+            test-results/transient/12v_load_step.png ; do
+            if [ ! -s "$f" ]; then echo "::error::missing or empty: $f"; missing=1; fi
+          done
+          exit $missing
+
+      - name: Upload regenerated results
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-results
+          path: |
+            outputs/
+            test-results/
+            docs/spec.md
+            docs/validation_report.md
+
+  headline:
+    name: Headline numbers meet the specification
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      # The README quotes these. If one of them stops being true the README is
+      # wrong, so the build should fail rather than the README quietly rotting.
+      - name: Check the numbers the README quotes
+        run: |
+          python - <<'PY'
+          import sys
+          from smps.results import headline
+          from smps.spec import SYSTEM
+
+          h = headline()
+          print(h)
+          checks = [
+              ("system efficiency at 24 V", h["system_efficiency_nom_pct"] > 85.0),
+              ("max ambient at full load", h["max_ambient_full_load_c"] > SYSTEM.ambient_max_c),
+              ("conducted emissions margin", h["worst_emc_margin_db"] > 0.0),
+              ("Middlebrook separation", h["worst_middlebrook_separation_db"] > 6.0),
+          ]
+          bad = [name for name, ok in checks if not ok]
+          if bad:
+              print("FAILED:", ", ".join(bad), file=sys.stderr)
+              sys.exit(1)
+          print("all headline numbers hold")
+          PY

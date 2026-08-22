@@ -1,0 +1,28 @@
+ref,qty,description,value,package,candidate_mpn,mpn_status
+U1,1,"Synchronous buck controller, peak current mode, external compensation, 6-75 V",-,HTSSOP-20,TI LM5145 (candidate),"candidate, unverified"
+"Q1,Q2",2,"N-channel MOSFET, 60 V, 11 mOhm, PowerPAK/SON 3.3x3.3",60V 11m,SON-3x3,TI CSD18543Q3A (candidate),"candidate, unverified"
+L1,1,"Shielded power inductor, 6.8 uH, 9 A saturation, 11 mOhm DCR",6.8uH,XAL60xx,Coilcraft XAL6060-682 (candidate),"candidate, unverified"
+Rs1,1,"Current sense shunt, 5 mOhm, 1 %, 2 W, 4 terminal",5m,2512-4T,Vishay WSL2512 (candidate),"candidate, unverified"
+U2,1,"Current sense amplifier, gain 10",x10,SOT-23-5,TI INA declared TBD (candidate),"candidate, unverified"
+"C1,C2",2,MLCC 10 uF 50 V X7R,10uF/50V,1210,TBD,not selected
+C3,1,"Aluminium polymer 220 uF 50 V, 15 mOhm ESR",220uF/50V,SMD 10x10,TBD,not selected
+L4,1,"Differential mode input inductor, 10 uH, 3 A, 40 mOhm",10uH,SMD 7x7,TBD,not selected
+C12,1,Film capacitor 2.2 uF 63 V X2 style,2.2uF/63V,SMD,TBD,not selected
+C4-C6,3,MLCC 22 uF 25 V X7R,22uF/25V,1210,TBD,not selected
+"Rc1,Cc1,Cp1",3,"Type II compensation network, +5V rail",see docs,0402,-,design value
+U3,1,"Synchronous buck regulator, voltage mode, 6 V in, 3 A, integrated FETs",-,VQFN-16,TBD,not selected
+L2,1,"Shielded power inductor, 1.5 uH, 6 A saturation, 15 mOhm DCR",1.5uH,XAL40xx,Coilcraft XAL4020-152 (candidate),"candidate, unverified"
+"C7,C8",2,MLCC 22 uF 16 V X7R,22uF/16V,1206,TBD,not selected
+"R1,R3,Rf,Cf1,Cf2,Cf3",6,"Type III compensation network, +3V3 rail",see docs,0402,-,design value
+U4,1,"Synchronous boost controller, peak current mode",-,VSSOP-10,TBD,not selected
+"Q3,Q4",2,"N-channel MOSFET, 30 V, 40 mOhm",30V 40m,SOT-23,TBD,not selected
+L3,1,"Shielded power inductor, 22 uH, 2.5 A saturation, 45 mOhm DCR",22uH,XAL50xx,TBD,not selected
+"C9,C10",2,MLCC 22 uF 25 V X7R,22uF/25V,1210,TBD,not selected
+U5,1,"Low noise LDO, 1.8 V fixed or adjustable, 0.5 A",-,WSON-6,TBD,not selected
+C11,1,MLCC 10 uF 6.3 V X7R,10uF/6.3V,0805,TBD,not selected
+Rf1,1,"LDO input filter resistor, 0.33 ohm 1 %, 1 W",0R33,0805,-,design value
+C13,1,"MLCC 10 uF 16 V X7R, LDO input filter capacitor",10uF/16V,0805,TBD,not selected
+Rpl,1,"Preload resistor, 180 ohm, holds 10 mA minimum LDO load",180R,0603,-,design value
+FB1,1,"Common mode choke, 2 x 100 uH, 2 A",2x100uH,SMD,TBD,not selected
+J1,1,"Input connector, 40 V, 2 A",-,-,TBD,not selected
+J2,1,"Output connector, 4 rails plus returns",-,-,TBD,not selected
