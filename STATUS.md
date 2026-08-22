@@ -136,6 +136,39 @@ of uncertainty in either direction.
 
 ---
 
+## The project brief's build checklist
+
+The brief this repository was built from lists fourteen milestones. Where they
+stand:
+
+- [x] Written specification: rails, currents, ripple, transient, thermal
+- [x] Topology selection and component sizing
+- [x] Pre-layout validation. Done with the switching simulator in this
+      repository rather than LTspice, plus SPICE decks for the parts that can
+      be checked in SPICE exactly. See `outputs/README.md` for what is emitted
+      and what deliberately is not
+- [x] Loop compensation derivation, by hand, with the working shown
+- [ ] Schematic capture in Altium. Netlist provided, schematic not captured
+- [ ] 4-layer layout. Stackup defined and layout rules written, layout not done
+- [ ] Fabrication and assembly
+- [ ] Bring-up. Procedure written with a predicted value for every measurement,
+      not performed
+- [ ] Load and line regulation **measurement**. Simulated only
+- [ ] Efficiency curves **measured**. Predicted only
+- [ ] Bode **measurement**. Simulated only, using the same injection method and
+      the same formula a bench analyser uses
+- [ ] Transient response **measured**. Simulated only
+- [ ] Thermal **measured** under full load. Modelled only
+- [ ] EMC near-field pre-scan. Conducted differential mode modelled only, and
+      near field needs a board
+- [x] Validation report, generated, and explicit about which of the above it
+      does and does not cover
+
+Everything unticked needs hardware. Everything tickable without hardware is
+ticked.
+
+---
+
 ## Open items, in the order they would be done
 
 1. Select real parts and replace every row of `outputs/VERIFY.csv` with a

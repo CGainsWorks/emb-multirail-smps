@@ -8,7 +8,7 @@ on:
 jobs:
   tests:
     name: Model and design tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -32,7 +32,7 @@ jobs:
 
   regenerate:
     name: Regenerate outputs and check they match what is committed
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -106,7 +106,7 @@ jobs:
 
   headline:
     name: Headline numbers meet the specification
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
