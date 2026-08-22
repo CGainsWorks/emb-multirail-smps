@@ -8,6 +8,7 @@ help:
 	@echo "make demo    regenerate every result, plot, CSV and generated document"
 	@echo "make quick   the same without the switching simulator sweeps"
 	@echo "make test    run the test suite"
+	@echo "make headline check the numbers the README quotes are still true"
 	@echo "make check   test, then demo, then confirm nothing changed"
 	@echo "make clean   remove generated outputs"
 
@@ -22,6 +23,9 @@ quick:
 
 test:
 	$(PY) -m pytest tests -q
+
+headline:
+	$(PY) scripts/check_headline.py
 
 # The check a reviewer should run: the results in the repository have to be
 # exactly what the code produces today, not what it produced when somebody
@@ -42,4 +46,4 @@ clean:
 	rm -f test-results/power_tree.png
 	rm -rf .pytest_cache **/__pycache__
 
-.PHONY: help setup demo quick test check clean
+.PHONY: help setup demo quick test headline check clean
