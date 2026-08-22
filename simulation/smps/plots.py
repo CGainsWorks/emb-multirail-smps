@@ -287,21 +287,37 @@ def plot_thermal(out_dir: Path) -> list[Path]:
 
 def plot_emc(out_dir: Path) -> list[Path]:
     paths = []
-    fig, ax = plt.subplots(figsize=(7.4, 4.2))
+    fig, ax = plt.subplots(figsize=(7.6, 4.4))
+    worst = None
     for v_in in (SYSTEM.vin_min_v, SYSTEM.vin_nom_v, SYSTEM.vin_max_v):
         tree = solve_power_tree(v_in)
         res = prescan(v_in, tree.per_rail["+5V"].i_out_a)
-        ax.semilogx(res.f_hz, res.v_dbuv, "o-", ms=3, lw=0.9,
-                    label=f"Vin {v_in:.0f} V")
+        # Markers, not a line. The spectrum of a periodic waveform exists only
+        # at the harmonics; joining them up would draw content that is not
+        # there.
+        line, = ax.semilogx(res.f_hz, res.v_dbuv, "o", ms=3.5,
+                            label=f"Vin {v_in:.0f} V")
+        ax.vlines(res.f_hz, -60, res.v_dbuv, lw=0.6, alpha=0.35,
+                  color=line.get_color())
+        if worst is None or res.worst_margin_db < worst[0]:
+            worst = (res.worst_margin_db, res.worst_frequency_hz,
+                     float(res.v_dbuv[int(np.argmin(np.where(
+                         np.isfinite(res.limit_dbuv),
+                         res.margin_db, np.inf)))]))
     f_line = np.logspace(np.log10(150e3), np.log10(30e6), 500)
-    ax.semilogx(f_line, en55032_class_b_qp_dbuv(f_line), "r--", lw=1.3,
+    ax.semilogx(f_line, en55032_class_b_qp_dbuv(f_line), "r--", lw=1.4,
                 label="EN 55032 Class B quasi peak, reference envelope")
+    ax.annotate(f"worst margin {worst[0]:.1f} dB{chr(10)}"
+                f"at {worst[1]/1e3:.0f} kHz",
+                xy=(worst[1], worst[2]), xytext=(40, 22),
+                textcoords="offset points", fontsize=8,
+                arrowprops=dict(arrowstyle="->", lw=0.8))
     ax.set_xlim(1e5, 4e7)
-    ax.set_ylim(-30, 90)
+    ax.set_ylim(-40, 90)
     ax.set_xlabel("frequency [Hz]")
     ax.set_ylabel("level at the LISN [dBuV]")
     ax.set_title("Conducted emissions pre-scan, differential mode only")
-    ax.legend(fontsize=8, loc="upper right")
+    ax.legend(fontsize=8, loc="lower left")
     _footer(fig, "Modelled, not measured. Differential mode only. Common mode "
                  "depends on layout that does not exist yet.")
     paths.append(_save(fig, out_dir / "conducted_prescan.png"))
