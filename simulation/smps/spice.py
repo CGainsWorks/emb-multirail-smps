@@ -200,7 +200,7 @@ Resr  cx  0  {_f(p['Cout_esr_ohm'])}
 Cin   vin ci {_f(p['Cin_F'])}
 Rcin  ci  0  {_f(p['Cin_esr_ohm'])}
 Vramp ramp 0 PULSE(0 {_f(p['v_ramp_vpp'])} 0 {_f(ts * 0.98)} {_f(ts * 0.02)} 1n {_f(ts)})
-Bpwm  gate 0 V = V(comp) > V(ramp) ? 1 : 0
+Bpwm  gate 0 V = 0.5 + 0.5*tanh(2000*(V(comp) - V(ramp)))
 R1    out fb {_f(c.r1_ohm)}
 Rbot  fb  0  {_f(c.rbot_ohm)}
 R3    out n3 {_f(c.r3_ohm)}
@@ -209,12 +209,20 @@ Rf    comp nf {_f(c.rf_ohm)}
 Cf1   nf  fb {_f(c.cf1_f)}
 Cf2   comp fb {_f(c.cf2_f)}
 Bea   comp 0 V = min(max(1e5 * ({_f(p['v_ref_v'])} - V(fb)), 0), {_f(p['v_ramp_vpp'])})
-.model swmod sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0)
+.model swmod sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0.1)
+* Switching circuits are where a general purpose solver earns its reputation
+* for not converging. Three things keep this one well behaved: the comparator
+* has a finite transition region rather than an infinitely sharp step, which at
+* this gain is about 0.5 mV wide and so under a nanosecond of the ramp; the
+* switch model has hysteresis, which stops it chattering across its threshold;
+* and Gear integration is better damped than trapezoidal on stiff switching
+* nodes. None of it changes the circuit in any way that matters at 1 MHz.
+.options method=gear maxord=2 reltol=1e-3 abstol=1e-10 vntol=1e-6 itl4=200
 .control
-tran {_f(ts / 100)} 2m 1.5m {_f(ts / 50)}
-meas tran vavg AVG v(out) from=1.9m to=2m
-meas tran vmax MAX v(out) from=1.9m to=2m
-meas tran vmin MIN v(out) from=1.9m to=2m
+tran {_f(ts / 100)} 1m 0.9m {_f(ts / 50)}
+meas tran vavg AVG v(out) from=0.95m to=1m
+meas tran vmax MAX v(out) from=0.95m to=1m
+meas tran vmin MIN v(out) from=0.95m to=1m
 quit
 .endc
 .end
