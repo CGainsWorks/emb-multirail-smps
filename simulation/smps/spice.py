@@ -188,8 +188,8 @@ def buck3v3_transient(ngspice: bool) -> str:
     common = f"""* +3V3 synchronous buck, voltage mode, Type III compensation
 Vin   vin 0 {_f(v_in)}
 Rload out 0 {_f(r_load)}
-Shs   vin sw   gate 0 swmod
-Sls   sw  0    gateb 0 swmod
+Shs   vin sw   gate 0 swhs
+Sls   sw  0    gateb 0 swls
 """
     if ngspice:
         body = common + f"""Bgb   gateb 0 V = 1 - V(gate)
@@ -209,17 +209,27 @@ Rf    comp nf {_f(c.rf_ohm)}
 Cf1   nf  fb {_f(c.cf1_f)}
 Cf2   comp fb {_f(c.cf2_f)}
 Bea   comp 0 V = min(max(1e5 * ({_f(p['v_ref_v'])} - V(fb)), 0), {_f(p['v_ramp_vpp'])})
-.model swmod sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0.1)
+* Separate models, because the two devices do not have the same Rds(on) and
+* using one model for both was quietly putting the high side figure on the low
+* side as well.
+.model swhs sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0)
+.model swls sw(ron={_f(p['rds_ls_ohm'])} roff=1meg vt=0.5 vh=0)
 * Switching circuits are where a general purpose solver earns its reputation
-* for not converging. Three things keep this one well behaved: the comparator
-* has a finite transition region rather than an infinitely sharp step, which at
-* this gain is about 0.5 mV wide and so under a nanosecond of the ramp; the
-* switch model has hysteresis, which stops it chattering across its threshold;
-* and Gear integration is better damped than trapezoidal on stiff switching
-* nodes. None of it changes the circuit in any way that matters at 1 MHz.
+* for not converging, and the first attempt at this deck duly failed mid edge.
+* What fixes it is giving the comparator a finite transition region instead of
+* an infinitely sharp step: at this gain it is about 0.5 mV wide, which is
+* under a nanosecond of ramp. Gear integration helps too, being better damped
+* than trapezoidal on a stiff switching node.
+*
+* The switches deliberately have no hysteresis. Adding some also cures the
+* convergence, but it opens a window where neither device conducts, and with
+* no body diodes modelled the inductor current then drives the switch node
+* through a megohm and rings. That showed up as more than twice the expected
+* output ripple, which is a modelling artefact rather than a property of the
+* converter.
 .options method=gear maxord=2 reltol=1e-3 abstol=1e-10 vntol=1e-6 itl4=200
 .control
-tran {_f(ts / 100)} 1m 0.9m {_f(ts / 50)}
+tran {_f(ts / 200)} 1m 0.9m {_f(ts / 100)}
 meas tran vavg AVG v(out) from=0.95m to=1m
 meas tran vmax MAX v(out) from=0.95m to=1m
 meas tran vmin MIN v(out) from=0.95m to=1m

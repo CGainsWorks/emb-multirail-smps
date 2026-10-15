@@ -4,8 +4,8 @@
 * +3V3 synchronous buck, voltage mode, Type III compensation
 Vin   vin 0 5
 Rload out 0 1.1
-Shs   vin sw   gate 0 swmod
-Sls   sw  0    gateb 0 swmod
+Shs   vin sw   gate 0 swhs
+Sls   sw  0    gateb 0 swls
 Bgb   gateb 0 V=1-V(gate)
 L1    sw  out 1.5e-06 Rser=0.015
 Cout  out cx 3.3e-05

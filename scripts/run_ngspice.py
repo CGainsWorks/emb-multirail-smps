@@ -165,9 +165,15 @@ def compare_transient(stdout: str) -> list[str]:
     v_target = 0.8 * (c.r1_ohm + c.rbot_ohm) / c.rbot_ohm
     ripple_mv = 1e3 * (vals["vmax"] - vals["vmin"])
 
+    # What this repository's own switching simulator says, so the two are
+    # compared against each other rather than both merely against the limit.
+    from smps.results import steady_state
+    _, own_ripple = steady_state("+3V3", rail("+5V").v_out_v, 3.0, cycles=2000)
+    own_mv = 1e3 * own_ripple
+
     problems = []
-    # Half a percent. The two simulators share component values and nothing
-    # else: different integration, different modulator implementation,
+    # Half a percent on the settled voltage. The two simulators share component
+    # values and nothing else: different integration, different modulator, a
     # different switch model.
     if abs(vals["vavg"] / v_target - 1) > 5e-3:
         problems.append(f"buck3v3_transient.cir: settled {vals['vavg']:.4f} V "
@@ -175,9 +181,18 @@ def compare_transient(stdout: str) -> list[str]:
     if ripple_mv > 1e3 * r.v_ripple_max_vpp:
         problems.append(f"buck3v3_transient.cir: ripple {ripple_mv:.2f} mVpp "
                         f"exceeds the {1e3 * r.v_ripple_max_vpp:.0f} mVpp limit")
+    # A factor of 1.6 between two switching simulators of the same circuit is
+    # generous, and it is set there because they model the switch transition
+    # differently. Beyond that the disagreement is worth explaining rather than
+    # publishing.
+    if not 1 / 1.6 < ripple_mv / own_mv < 1.6:
+        problems.append(f"buck3v3_transient.cir: ripple {ripple_mv:.2f} mVpp "
+                        f"against {own_mv:.2f} mVpp from this repository's "
+                        f"simulator, a factor of {ripple_mv / own_mv:.2f}")
 
     print(f"  {'buck3v3_transient.cir':34s} settled {vals['vavg']:.4f} V "
-          f"(divider says {v_target:.4f} V), ripple {ripple_mv:.2f} mVpp")
+          f"(divider says {v_target:.4f} V), ripple {ripple_mv:.2f} mVpp "
+          f"against {own_mv:.2f} mVpp here")
     return problems
 
 
