@@ -60,7 +60,10 @@ EMC**, with the input filter also checked against Middlebrook's criterion.
 **Netlist.** A Protel format connection list that Altium imports, 51 parts and
 29 nets, with integrity checks in the test suite.
 
-**Test suite.** 99 tests, no hardware needed, running in about 50 seconds.
+**Test suite.** 110 tests, no hardware needed, running in about a minute.
+Among them, a set that reads the generated CSVs back and fails if any number
+quoted in the README has drifted away from them, which it had, twice, before
+that check existed.
 
 **CI, running.** One job: tests, regeneration, a check that the committed
 results still match what the code produces, and a guard on every number the

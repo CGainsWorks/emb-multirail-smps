@@ -1,7 +1,9 @@
 name: design
 
-# Budget note. This runs on a free account, where private repository minutes
-# are finite, so the workflow is built to spend as few as possible:
+# Budget note. This repository is public, so standard runners cost nothing.
+# The workflow is still built lean, because it was private while the design was
+# being written, because a free account's private allowance is finite, and
+# because a job that wastes four minutes wastes them on every push for ever:
 #
 #   one job, not four      one checkout and one dependency install, shared by
 #                          the tests, the regeneration and the headline guard,
@@ -13,13 +15,14 @@ name: design
 #   pip cache              the dependency install is the second largest cost
 #                          after the simulation itself
 #   timeout-minutes        a hung job cannot quietly eat the month's allowance
-#   manual version matrix  Python 3.9 and 3.12 are checked on demand, not on
-#                          every push, because the thing that breaks between
-#                          versions is library behaviour and that does not
-#                          change when this repository does
+#   manual version matrix  3.9 and 3.11 are checked on demand, not on every
+#                          push, because the thing that breaks between versions
+#                          is library behaviour and that does not change when
+#                          this repository does. 3.12 runs on every push as the
+#                          main job's interpreter
 #
-# Together that is roughly 3 to 4 minutes per push against about 12 for the
-# obvious arrangement. `make ci` runs the same steps locally for nothing.
+# Measured at about 2 minutes per push, against roughly 12 for the obvious
+# arrangement of one job per check. `make ci` runs the same steps locally.
 
 on:
   push:
@@ -59,14 +62,19 @@ permissions:
 jobs:
   verify:
     name: Tests, regeneration and headline numbers
+    # ubuntu-latest rather than a pinned image. A pinned label eventually stops
+    # existing, and when it does the job fails before running a step with no
+    # useful message, which is a worse failure mode than an image upgrade. The
+    # outputs check tolerates platform differences by design, so an image
+    # migration is not a problem here.
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: pip
@@ -137,7 +145,7 @@ jobs:
       # to look at the results.
       - name: Upload results
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: design-results
           retention-days: 7
@@ -162,11 +170,11 @@ jobs:
       matrix:
         python: ['3.9', '3.11']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
           cache: pip

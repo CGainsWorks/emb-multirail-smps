@@ -61,7 +61,9 @@ written by hand.
 make test
 ```
 
-99 tests, about 50 seconds, no hardware needed.
+110 tests, about a minute, no hardware needed. They include a set that reads
+the generated CSVs back and fails if any number quoted in this README has
+drifted away from them.
 
 ```bash
 make check
@@ -89,10 +91,10 @@ It is built to be cheap, because the account that runs it is a free one:
 | concurrency | pushing twice in a minute cancels the first run instead of paying for both |
 | pip cache | the dependency install is the second largest cost after the simulation |
 | `timeout-minutes` | a hung job cannot quietly consume a month's allowance |
-| manual version matrix | Python 3.9 and 3.11 are checked on demand, not on every push, because what that catches is library behaviour and that does not change when this repository does |
+| manual version matrix | 3.9 and 3.11 are checked on demand, not on every push, because what that catches is library behaviour and that does not change when this repository does. 3.12 runs on every push as the main job's interpreter |
 
-About 2 to 3 minutes per push, against roughly 12 for the obvious arrangement
-of one job per check.
+Measured at about 2 minutes per push, against roughly 12 for the obvious
+arrangement of one job per check.
 
 **The outputs are compared as numbers, not as bytes.** A switching simulation
 that finds its switching instants by iteration is not bit reproducible across
@@ -188,9 +190,15 @@ Every number below is produced by `make demo`. **All of them are simulated.**
 
 | rail | line regulation | load regulation | ripple | limit | load step | undershoot | limit |
 |---|---|---|---|---|---|---|---|
-| +5V | 0.002 % over 8 to 36 V | 0.001 % | 6.4 mVpp | 25 mVpp | 1.5 A | 100 mV | 150 mV |
-| +3V3 | 0.005 % over the 5 V band | 0.001 % | 2.7 mVpp | 20 mVpp | 1.0 A | 42 mV | 100 mV |
-| +12V | 0.005 % over the 5 V band | 0.002 % | 25.6 mVpp | 50 mVpp | 0.2 A | 199 mV | 300 mV |
+| +5V | < 0.001 % over 8 to 36 V | 0.001 % | 6.4 mVpp | 25 mVpp | 1.5 A | 100 mV | 150 mV |
+| +3V3 | < 0.001 % over the 5 V band | < 0.001 % | 2.7 mVpp | 20 mVpp | 1.0 A | 42 mV | 100 mV |
+| +12V | < 0.001 % over the 5 V band | 0.002 % | 25.6 mVpp | 50 mVpp | 0.2 A | 199 mV | 300 mV |
+
+The regulation columns are quoted to three decimals of a percent and no further,
+because that is where this solver stops meaning anything: it resolves a settled
+output voltage to about one part per million, which is 0.0001 percent. Read them
+as bounds, not as measurements of a converter that regulates to a part in
+a hundred thousand.
 
 The +5V line regulation looks too good, and there is a reason. With peak
 current mode and the artificial ramp set equal to the falling inductor current
