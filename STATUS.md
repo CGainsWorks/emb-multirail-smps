@@ -77,9 +77,18 @@ exhausted private repository allowance looks like. Making it public resolved
 that, and the first public run confirmed it: zero billable milliseconds,
 because public repositories do not consume the allowance.
 
-Python 3.9 and 3.11 are checked on manual dispatch rather than on every push.
-3.9 and 3.12 have both been run; 3.11 has not been run anywhere yet, so treat
-that row as untested rather than passing.
+Python 3.9 and 3.11 are checked on manual dispatch rather than on every push,
+3.12 on every push as the main job's interpreter. All three have been run and
+pass: the dispatch run took 101 seconds of wall clock for all three jobs
+together.
+
+The outputs check compares numbers rather than bytes, and that was forced by a
+real failure rather than chosen for convenience. The settled output voltages
+differ by about one part per million between Windows with numpy 1.26 and Linux
+with numpy 2.5, because the simulator locates each switching instant by secant
+iteration and the closed loop integrates those last bit differences over
+thousands of cycles. The tolerance is stated, the worst deviation is printed on
+every run, and non-numeric tokens still have to match exactly.
 
 ---
 
