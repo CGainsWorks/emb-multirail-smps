@@ -20,15 +20,21 @@ finer than the uncertainty in the component values the numbers are computed
 from. It is also enough to change the sixth decimal place of a voltage, which
 a byte comparison would report as a failure.
 
-So this compares numbers as numbers. Every non-numeric token still has to match
-exactly, so a renamed column, a reordered row or a changed sentence is caught
-the way it should be.
+So this compares numbers as numbers, with the usual combined rule
+``|a - b| <= atol + rtol |b|``. The absolute floor earns its place: the load and
+line regulation columns are differences of two nearly equal voltages, so their
+values sit around 0.001 percent while their relative spread between platforms
+reaches 100 percent. Relative tolerance alone would fail the build over
+quantities that are at the solver's own resolution.
 
-    python scripts/check_outputs_current.py [--rtol 1e-5] [--atol 1e-9]
+Every non-numeric token still has to match exactly, so a renamed column, a
+reordered row or a changed sentence is caught the way it should be.
 
-Exit status 0 if everything matches within tolerance, 1 otherwise. The worst
-relative deviation seen is always reported, so slow drift is visible long
-before it trips the threshold.
+    python scripts/check_outputs_current.py [--rtol 1e-5] [--atol 5e-4]
+
+Exit status 0 if everything matches within tolerance, 1 otherwise. It always
+reports the worst deviation as a percentage of the allowed tolerance, so slow
+drift is visible long before it trips the threshold.
 """
 
 from __future__ import annotations
@@ -80,17 +86,30 @@ def tokenise(line: str) -> list[tuple[bool, str]]:
 
 
 def close_enough(a: str, b: str, rtol: float, atol: float) -> tuple[bool, float]:
+    """``|a - b| <= atol + rtol |b|``, the usual combined form.
+
+    The absolute floor matters as much as the relative one here. The load and
+    line regulation columns are differences of two nearly equal voltages, so
+    their values are around 0.001 percent while their *relative* spread between
+    platforms reaches 100 percent. Judging those on relative tolerance alone
+    would fail the build over quantities that sit at the solver's own
+    resolution. The floor says, in effect, that this repository does not claim
+    anything finer than 5e-4 of a reported unit.
+    """
     x, y = float(a), float(b)
     if x == y:
         return True, 0.0
-    diff = abs(x - y)
-    scale = max(abs(x), abs(y))
-    rel = diff / scale if scale else math.inf
-    return diff <= atol or rel <= rtol, rel
+    allowed = atol + rtol * abs(y)
+    # Reported as a fraction of what is allowed, which is the number a reader
+    # actually wants: 0.4 means it used 40 percent of the budget, 1.0 means it
+    # just failed. Raw relative error is misleading on a column whose values
+    # are near zero, where a meaningless absolute change looks like 100 percent.
+    used = abs(x - y) / allowed if allowed else math.inf
+    return used <= 1.0, used
 
 
 def compare(path: str, old: str, new: str, rtol: float, atol: float):
-    """Yield problem descriptions, and return the worst relative deviation."""
+    """Yield problem descriptions, and return the worst tolerance usage."""
     problems: list[str] = []
     worst = 0.0
     old_lines = old.splitlines()
@@ -109,12 +128,12 @@ def compare(path: str, old: str, new: str, rtol: float, atol: float):
             continue
         for (is_num, a), (_, b) in zip(to, tn):
             if is_num:
-                ok, rel = close_enough(a, b, rtol, atol)
-                worst = max(worst, rel if math.isfinite(rel) else 0.0)
+                ok, used = close_enough(a, b, rtol, atol)
+                worst = max(worst, used if math.isfinite(used) else 0.0)
                 if not ok:
                     problems.append(
-                        f"{path}:{n}: {a} -> {b}  (relative {rel:.2e}, "
-                        f"tolerance {rtol:.0e})")
+                        f"{path}:{n}: {a} -> {b}  ({used:.1f} times the "
+                        f"allowed tolerance)")
             elif a != b:
                 problems.append(f"{path}:{n}: text changed {a!r} -> {b!r}")
     return problems, worst
@@ -125,8 +144,10 @@ def main() -> int:
     ap.add_argument("--rtol", type=float, default=1e-5,
                     help="relative tolerance for numbers (default 1e-5, about "
                          "eight times the observed cross platform spread)")
-    ap.add_argument("--atol", type=float, default=1e-9,
-                    help="absolute tolerance, for values near zero")
+    ap.add_argument("--atol", type=float, default=5e-4,
+                    help="absolute floor (default 5e-4 of a reported unit), "
+                         "which is what stops near-zero derived columns being "
+                         "judged on relative tolerance")
     args = ap.parse_args()
 
     files = tracked_files()
@@ -160,9 +181,9 @@ def main() -> int:
     untracked = [p for p in untracked if Path(p).suffix.lower() not in SKIP_SUFFIXES]
 
     print(f"compared {len(files)} generated files against HEAD")
-    print(f"worst relative deviation {worst:.2e}"
-          + (f" in {worst_file}" if worst_file else "")
-          + f", tolerance {args.rtol:.0e}")
+    print(f"tolerance: |a-b| <= {args.atol:g} + {args.rtol:g}|b|")
+    print(f"worst deviation used {100 * worst:.1f} percent of that budget"
+          + (f", in {worst_file}" if worst_file else ""))
 
     if untracked:
         all_problems += [f"{p}: produced but never committed" for p in untracked]

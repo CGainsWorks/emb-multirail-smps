@@ -148,7 +148,10 @@ def load_regulation_rows() -> list[dict]:
                 "rail": rail_name, "v_in_v": round(v_in, 3),
                 "i_out_a": round(float(i), 4),
                 "v_out_v": round(v, 6),
-                "deviation_from_light_load_pct": round(100 * (v / nominal - 1), 4),
+                # Three decimals, not four. The solver resolves a settled
+                # output voltage to about 1 ppm, which is 0.0001 percent, so a
+                # fourth decimal here would be reporting its own noise.
+                "deviation_from_light_load_pct": round(100 * (v / nominal - 1), 3),
                 "ripple_mvpp": round(1e3 * ripple, 3),
                 "ripple_limit_mvpp": round(1e3 * r.v_ripple_max_vpp, 3),
             })
@@ -166,7 +169,7 @@ def line_regulation_rows() -> list[dict]:
         rows.append({
             "rail": "+5V", "v_in_v": v_in, "i_out_a": r.i_max_a,
             "v_out_v": round(v, 6),
-            "deviation_from_8v_pct": round(100 * (v / nominal - 1), 4),
+            "deviation_from_8v_pct": round(100 * (v / nominal - 1), 3),
             "ripple_mvpp": round(1e3 * ripple, 3),
         })
     # The downstream rails see a regulated 5 V, so their line test is the
@@ -181,7 +184,7 @@ def line_regulation_rows() -> list[dict]:
             rows.append({
                 "rail": rail_name, "v_in_v": v_in, "i_out_a": rr.i_max_a,
                 "v_out_v": round(v, 6),
-                "deviation_from_8v_pct": round(100 * (v / nominal - 1), 4),
+                "deviation_from_8v_pct": round(100 * (v / nominal - 1), 3),
                 "ripple_mvpp": round(1e3 * ripple, 3),
             })
     return rows

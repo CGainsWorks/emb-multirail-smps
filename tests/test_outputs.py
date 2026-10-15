@@ -173,12 +173,29 @@ def test_tokeniser_splits_numbers_from_text():
 
 def test_numeric_comparison_accepts_solver_noise_and_rejects_real_change():
     """One part per million is what the switching simulator reproduces to
-    across platforms. One part per hundred is a design change."""
+    across platforms. One percent is a design change.
+
+    close_enough returns how much of the allowed tolerance the difference
+    used, so under 1.0 passes and over 1.0 fails.
+    """
     c = _checker()
-    ok, rel = c.close_enough("4.984290", "4.984295", 1e-5, 1e-9)
-    assert ok and rel < 1e-5
-    ok, rel = c.close_enough("4.984290", "5.034295", 1e-5, 1e-9)
-    assert not ok and rel > 1e-3
+    ok, used = c.close_enough("4.984290", "4.984295", 1e-5, 5e-4)
+    assert ok and used < 0.1
+    ok, used = c.close_enough("4.984290", "5.034295", 1e-5, 5e-4)
+    assert not ok and used > 10
+
+
+def test_near_zero_derived_columns_are_judged_on_the_absolute_floor():
+    """The regulation deviations are differences of two nearly equal voltages,
+    so their relative spread between platforms reaches 100 percent while their
+    absolute spread is meaningless. Relative tolerance alone would fail the
+    build over the solver's own resolution."""
+    c = _checker()
+    ok, used = c.close_enough("-0.0003", "-0.0001", 1e-5, 5e-4)
+    assert ok and used < 1.0
+    # A real change in the same column is still caught.
+    ok, _ = c.close_enough("-0.0003", "-0.05", 1e-5, 5e-4)
+    assert not ok
 
 
 def test_a_changed_word_is_caught_even_though_numbers_are_tolerant():
