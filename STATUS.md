@@ -62,22 +62,20 @@ EMC**, with the input filter also checked against Middlebrook's criterion.
 
 **Test suite.** 99 tests, no hardware needed, running in about 50 seconds.
 
-**CI workflow, written and verified locally but not running.** The workflow
-covers tests across three Python versions, regeneration of every output with a
-failure if the committed results have drifted, and a guard that fails if any
-number the README quotes stops being true.
+**CI, running.** One job: tests, regeneration, a check that the committed
+results still match what the code produces, and a guard on every number the
+README quotes. Built for a free account, so it is one job rather than four,
+with path filters, concurrency cancellation, a pip cache and a hard timeout.
+About 2 to 3 minutes per push. `make ci` is the same sequence locally.
 
-It has not run on GitHub. This repository is private and its Actions jobs are
-not being assigned a runner, which on a personal plan means the private
-repository allowance is exhausted or the spending limit is zero: every job
-fails in two seconds having executed no steps, with `ubuntu-latest` and with a
-pinned runner label alike, while Actions is enabled on the repository. That is
-a billing state, not a workflow defect.
+The repository was private until the design was worth showing, and while it was
+private the Actions jobs were never assigned a runner, which is what an
+exhausted private repository allowance looks like. Making it public resolved
+that, and the first public run confirmed it: zero billable milliseconds,
+because public repositories do not consume the allowance.
 
-Every step has been run locally instead, on Python 3.9 with numpy 1.26 and on
-Python 3.12 with numpy 2.5. Both give 99 passing tests and byte identical
-generated outputs. `make check` is the local equivalent of the CI job and it
-passes. Python 3.11 is in the matrix but has not been run anywhere, so treat
+Python 3.9 and 3.11 are checked on manual dispatch rather than on every push.
+3.9 and 3.12 have both been run; 3.11 has not been run anywhere yet, so treat
 that row as untested rather than passing.
 
 ---

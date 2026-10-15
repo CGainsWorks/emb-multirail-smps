@@ -142,11 +142,11 @@ Adding the phase contributions at 50 kHz:
 | compensator zero, 4.08 kHz | +85.3 deg |
 | compensator pole, 276 kHz | -10.3 deg |
 | plant dominant pole, 4.48 kHz | -84.9 deg |
-| plant pole pair, 250 kHz, Q 0.644 | -18.1 deg |
+| plant pole pair, 250 kHz, Q 0.644 | -17.9 deg |
 | plant ESR zero, 5.1 MHz | +0.6 deg |
-| **total** | **-117.4 deg** |
+| **total** | **-117.2 deg** |
 
-Phase margin 62.6 degrees by hand. The numeric model gives **62.9 degrees at
+Phase margin 62.8 degrees by hand. The numeric model gives **62.9 degrees at
 49.6 kHz**, and the switching simulation gives **64.7 degrees at 49.9 kHz**.
 Gain margin from the model is 12.9 dB, with the -180 degree crossing at
 165 kHz.

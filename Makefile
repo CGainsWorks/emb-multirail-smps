@@ -29,15 +29,11 @@ headline:
 	$(PY) scripts/check_headline.py
 
 # The check a reviewer should run: the results in the repository have to be
-# exactly what the code produces today, not what it produced when somebody
-# last remembered to regenerate them.
+# what the code produces today, not what it produced when somebody last
+# remembered to regenerate them. The comparison is against HEAD, so after
+# changing a model the order is: make demo, commit, then make check.
 check: test demo
-	@changed=$$(git status --porcelain -- outputs test-results docs/spec.md \
-		docs/validation_report.md | grep -v '\.png$$' || true); \
-	if [ -n "$$changed" ]; then \
-		echo "generated outputs are stale, commit the regenerated files:"; \
-		echo "$$changed"; exit 1; \
-	else echo "committed outputs match a fresh run"; fi
+	$(PY) scripts/check_outputs_current.py
 
 clean:
 	rm -rf outputs/netlists outputs/*.csv outputs/*.json
@@ -51,11 +47,7 @@ clean:
 # before pushing costs nothing and saves a round trip through a runner, which
 # on a free account is the whole point.
 ci: test demo
-	@changed=$$(git status --porcelain -- outputs test-results docs/spec.md \
-		docs/validation_report.md | grep -v '\.png$$' || true); \
-	if [ -n "$$changed" ]; then \
-		echo "generated outputs are stale:"; echo "$$changed"; exit 1; \
-	fi
+	$(PY) scripts/check_outputs_current.py
 	@for f in test-results/power_tree.png test-results/bode/*.png \
 		test-results/efficiency/*.png test-results/thermal/*.png \
 		test-results/emc-prescan/*.png test-results/*-regulation/*.png \

@@ -121,9 +121,9 @@ At 6 kHz:
 | plant dominant pole, 563 Hz | -84.6 deg |
 | **right half plane zero, 37.7 kHz** | **-9.0 deg** |
 | plant pole pair, 200 kHz, Q 0.659 | -2.6 deg |
-| **total** | **-103.6 deg** |
+| **total** | **-103.7 deg** |
 
-Phase margin 76.4 degrees, against the numeric model's **76.3 degrees at
+Phase margin 76.3 degrees, against the numeric model's **76.3 degrees at
 5.82 kHz** and the switching simulation's **78.0 degrees at 6.16 kHz**. Gain
 margin 14.5 dB with the -180 degree crossing at 49.4 kHz, which the switching
 measurement also sees, at 15.7 dB.

@@ -73,25 +73,37 @@ committing, and it is the check that matters most: a repository full of
 committed CSVs that no longer match the code is worse than one with no CSVs at
 all, because it looks authoritative.
 
-### A note on CI
+### CI
 
-`.github/workflows/ci.yml` is committed and complete: tests across three Python
-versions, a job that regenerates every output and fails if the committed
-results have drifted, and a job that fails if any number the README quotes
-stops being true.
+One job, which does four things in order: runs the tests, regenerates every
+output, checks the regenerated results still match what is committed, and
+checks that every number this README quotes is still true. `make ci` runs the
+same sequence locally.
 
-**It does not currently run.** This repository is private, and GitHub Actions
-jobs on it are failing to be assigned a runner, which on a personal plan means
-the private repository Actions allowance is exhausted or the spending limit is
-zero. The jobs fail in two seconds having executed no steps. Nothing about that
-is a problem with the workflow.
+It is built to be cheap, because the account that runs it is a free one:
 
-Every step of it has been run locally instead, on Python 3.9 with numpy 1.26
-and on Python 3.12 with numpy 2.5: 99 tests pass on both, `run_all.py`
-regenerates byte identical outputs on both, the staleness check comes back
-clean, all eighteen plots are produced, and `scripts/check_headline.py` passes.
-The equivalent one liner is `make check`. When the repository goes public, or
-the allowance resets, the workflow will run as written.
+| | |
+|---|---|
+| one job, not four | the checkout and the dependency install are paid for once and shared, rather than each check renting its own runner |
+| path filters | a commit that only touches documentation does not start a runner at all |
+| concurrency | pushing twice in a minute cancels the first run instead of paying for both |
+| pip cache | the dependency install is the second largest cost after the simulation |
+| `timeout-minutes` | a hung job cannot quietly consume a month's allowance |
+| manual version matrix | Python 3.9 and 3.11 are checked on demand, not on every push, because what that catches is library behaviour and that does not change when this repository does |
+
+About 2 to 3 minutes per push, against roughly 12 for the obvious arrangement
+of one job per check.
+
+**The outputs are compared as numbers, not as bytes.** A switching simulation
+that finds its switching instants by iteration is not bit reproducible across
+platforms: these settled voltages agree to about one part per million between
+Windows with numpy 1.26 and Linux with numpy 2.5. That is three orders finer
+than any claim made here, and insisting on bit equality would fail the build
+for reasons that have nothing to do with the design. Every non-numeric token
+still has to match exactly, so a renamed column, a reordered row or a changed
+sentence is caught. `scripts/check_outputs_current.py` does the comparison and
+always prints the worst deviation it saw, so drift is visible long before it
+trips the threshold.
 
 ---
 

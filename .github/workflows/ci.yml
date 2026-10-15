@@ -85,23 +85,19 @@ jobs:
 
       # The numbers in this repository have to be the ones the code produces
       # today. Committed results that have drifted from the code are worse than
-      # no results at all, because they look authoritative. Plots are excluded:
-      # matplotlib does not render byte identically across versions and fonts,
-      # so comparing them would fail for reasons that have nothing to do with
-      # the design.
+      # no results at all, because they look authoritative.
+      #
+      # Compared as numbers, not as bytes. A switching simulation that locates
+      # its switching instants by iteration is not bit reproducible across
+      # platforms: the settled outputs agree to about one part per million
+      # between Windows with numpy 1.26 and Linux with numpy 2.5, which is
+      # three orders finer than any claim made here and four orders finer than
+      # the uncertainty in the component values. Insisting on bit equality
+      # would fail this job for reasons that have nothing to do with the
+      # design. Non-numeric tokens still have to match exactly, so a renamed
+      # column, a reordered row or a changed sentence is caught.
       - name: Committed outputs match a fresh run
-        run: |
-          changed=$(git status --porcelain -- \
-            outputs test-results docs/spec.md docs/validation_report.md \
-            | grep -v '\.png$' || true)
-          if [ -n "$changed" ]; then
-            echo "::error::Generated outputs are stale. Run 'make demo' and commit the result."
-            echo "$changed"
-            git diff -- outputs test-results docs/spec.md \
-              docs/validation_report.md ':!*.png' | head -120
-            exit 1
-          fi
-          echo "committed outputs match a fresh run"
+        run: python scripts/check_outputs_current.py
 
       - name: Every plot was produced
         run: |

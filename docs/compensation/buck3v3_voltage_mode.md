@@ -121,12 +121,20 @@ Contributions at 100 kHz:
 | zero at 11.87 kHz | +83.2 deg |
 | pole at 479 kHz | -11.8 deg |
 | pole at 1.065 MHz | -5.4 deg |
-| plant LC double pole, 22.2 kHz, Q ~ 5 | -174.6 deg |
+| plant LC double pole, 22.2 kHz, Q ~ 5 | -177.4 deg |
 | plant ESR zero, 4.8 MHz | +1.2 deg |
-| **total** | **-113.5 deg** |
+| **total** | **-116.2 deg** |
 
-Phase margin 66.5 degrees by hand against the numeric model's **65.3 degrees at
+Phase margin 63.8 degrees by hand against the numeric model's **65.3 degrees at
 99.1 kHz**. The switching simulation gives **69.3 degrees at 95.5 kHz**.
+
+The hand sum is the pessimistic one of the three, by about 1.5 degrees, and the
+reason is in the row that dominates it. The closed form treats the LC pair as
+undamped apart from the load, so at 100 kHz it has already surrendered 177.4 of
+its 180 degrees. The numeric model carries the inductor DCR and both switch
+resistances as well, which damps the resonance and leaves a little phase still
+to give up at crossover. That is the correction the parasitics buy, and it is
+why the numeric model is the one the compensator is designed against.
 
 Gain margin from the model is 16.9 dB, with the -180 degree crossing at
 456 kHz. The switching measurement cannot confirm that one: sampling once per

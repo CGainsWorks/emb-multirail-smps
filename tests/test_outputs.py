@@ -148,3 +148,47 @@ def test_compensation_parts_are_marked_as_design_values_not_products():
     assert comp_refs
     for p in comp_refs:
         assert p.candidate_mpn == "-"
+
+
+# --------------------------------------------------------------------------
+# The outputs-are-current checker
+# --------------------------------------------------------------------------
+
+def _checker():
+    import importlib.util
+    import pathlib
+    path = pathlib.Path(__file__).resolve().parents[1] / "scripts" / "check_outputs_current.py"
+    spec = importlib.util.spec_from_file_location("check_outputs_current", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_tokeniser_splits_numbers_from_text():
+    c = _checker()
+    assert c.tokenise("a,1.5e-3,b") == [
+        (False, "a,"), (True, "1.5e-3"), (False, ",b")]
+    assert c.tokenise("no numbers here") == [(False, "no numbers here")]
+
+
+def test_numeric_comparison_accepts_solver_noise_and_rejects_real_change():
+    """One part per million is what the switching simulator reproduces to
+    across platforms. One part per hundred is a design change."""
+    c = _checker()
+    ok, rel = c.close_enough("4.984290", "4.984295", 1e-5, 1e-9)
+    assert ok and rel < 1e-5
+    ok, rel = c.close_enough("4.984290", "5.034295", 1e-5, 1e-9)
+    assert not ok and rel > 1e-3
+
+
+def test_a_changed_word_is_caught_even_though_numbers_are_tolerant():
+    c = _checker()
+    problems, _ = c.compare("f", "rail,v_out\n+5V,5.0\n", "rail,v_in\n+5V,5.0\n",
+                            1e-5, 1e-9)
+    assert problems and "text changed" in problems[0]
+
+
+def test_a_dropped_row_is_caught():
+    c = _checker()
+    problems, _ = c.compare("f", "a\nb\nc\n", "a\nb\n", 1e-5, 1e-9)
+    assert problems and "line count" in problems[0]
