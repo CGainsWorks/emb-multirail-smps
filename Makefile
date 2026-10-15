@@ -10,6 +10,7 @@ help:
 	@echo "make test    run the test suite"
 	@echo "make headline check the numbers the README quotes are still true"
 	@echo "make check   test, then demo, then confirm nothing changed"
+	@echo "make ci      everything CI does, locally, for no minutes"
 	@echo "make clean   remove generated outputs"
 
 setup:
@@ -46,4 +47,22 @@ clean:
 	rm -f test-results/power_tree.png
 	rm -rf .pytest_cache **/__pycache__
 
-.PHONY: help setup demo quick test headline check clean
+# Exactly what the GitHub Actions job does, in the same order. Running this
+# before pushing costs nothing and saves a round trip through a runner, which
+# on a free account is the whole point.
+ci: test demo
+	@changed=$$(git status --porcelain -- outputs test-results docs/spec.md \
+		docs/validation_report.md | grep -v '\.png$$' || true); \
+	if [ -n "$$changed" ]; then \
+		echo "generated outputs are stale:"; echo "$$changed"; exit 1; \
+	fi
+	@for f in test-results/power_tree.png test-results/bode/*.png \
+		test-results/efficiency/*.png test-results/thermal/*.png \
+		test-results/emc-prescan/*.png test-results/*-regulation/*.png \
+		test-results/transient/*.png; do \
+		[ -s "$$f" ] || { echo "missing or empty: $$f"; exit 1; }; \
+	done
+	@echo "all plots present"
+	$(PY) scripts/check_headline.py
+
+.PHONY: help setup demo quick test headline check ci clean

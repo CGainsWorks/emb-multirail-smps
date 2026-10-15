@@ -1,60 +1,95 @@
 name: design
 
+# Budget note. This runs on a free account, where private repository minutes
+# are finite, so the workflow is built to spend as few as possible:
+#
+#   one job, not four      one checkout and one dependency install, shared by
+#                          the tests, the regeneration and the headline guard,
+#                          instead of each paying for its own runner
+#   path filters           a commit that only touches documentation does not
+#                          start a runner at all
+#   concurrency            pushing twice in a minute cancels the first run
+#                          rather than paying for both
+#   pip cache              the dependency install is the second largest cost
+#                          after the simulation itself
+#   timeout-minutes        a hung job cannot quietly eat the month's allowance
+#   manual version matrix  Python 3.9 and 3.12 are checked on demand, not on
+#                          every push, because the thing that breaks between
+#                          versions is library behaviour and that does not
+#                          change when this repository does
+#
+# Together that is roughly 3 to 4 minutes per push against about 12 for the
+# obvious arrangement. `make ci` runs the same steps locally for nothing.
+
 on:
   push:
+    paths:
+      - 'simulation/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'outputs/**'
+      - 'test-results/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
   pull_request:
+    paths:
+      - 'simulation/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'outputs/**'
+      - 'test-results/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
   workflow_dispatch:
+    inputs:
+      python_matrix:
+        description: 'Also check the oldest and newest supported Python'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  tests:
-    name: Model and design tests
+  verify:
+    name: Tests, regeneration and headline numbers
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.9", "3.11", "3.12"]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: '3.12'
           cache: pip
 
+      # No editable install: tests/conftest.py puts simulation/ on the path and
+      # run_all.py does the same for itself, so a build step would be a minute
+      # spent on nothing.
       - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
+        run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: python -m pytest tests -q --durations=10
+      - name: Tests
+        run: python -m pytest tests -q --durations=5
 
-  regenerate:
-    name: Regenerate outputs and check they match what is committed
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Regenerate everything
+      - name: Regenerate every output
         run: python simulation/run_all.py
 
       # The numbers in this repository have to be the ones the code produces
-      # today. Committed CSVs and generated documents that have drifted away
-      # from the code are worse than no CSVs at all, because they look
-      # authoritative. Plots are excluded from the comparison because matplotlib
-      # does not render byte identically across versions and fonts.
-      - name: Check generated text outputs are current
+      # today. Committed results that have drifted from the code are worse than
+      # no results at all, because they look authoritative. Plots are excluded:
+      # matplotlib does not render byte identically across versions and fonts,
+      # so comparing them would fail for reasons that have nothing to do with
+      # the design.
+      - name: Committed outputs match a fresh run
         run: |
           changed=$(git status --porcelain -- \
             outputs test-results docs/spec.md docs/validation_report.md \
@@ -68,60 +103,80 @@ jobs:
           fi
           echo "committed outputs match a fresh run"
 
-      - name: Check every plot was produced
+      - name: Every plot was produced
         run: |
           missing=0
-          for f in \
-            test-results/power_tree.png \
-            test-results/bode/5v_loop_gain.png \
-            test-results/bode/3v3_loop_gain.png \
-            test-results/bode/12v_loop_gain.png \
-            test-results/bode/1v8a_ldo_loop_gain.png \
-            test-results/bode/1v8a_ldo_psrr.png \
-            test-results/efficiency/stage_efficiency.png \
-            test-results/efficiency/system_efficiency.png \
-            test-results/efficiency/loss_breakdown.png \
-            test-results/thermal/junction_temperatures.png \
-            test-results/thermal/ambient_derating.png \
-            test-results/emc-prescan/conducted_prescan.png \
-            test-results/emc-prescan/input_filter_middlebrook.png \
-            test-results/load-regulation/load_regulation.png \
-            test-results/line-regulation/line_regulation_5v.png \
-            test-results/transient/5v_load_step.png \
-            test-results/transient/3v3_load_step.png \
-            test-results/transient/12v_load_step.png ; do
+          while read -r f; do
+            [ -z "$f" ] && continue
             if [ ! -s "$f" ]; then echo "::error::missing or empty: $f"; missing=1; fi
-          done
+          done <<'PLOTS'
+          test-results/power_tree.png
+          test-results/bode/5v_loop_gain.png
+          test-results/bode/3v3_loop_gain.png
+          test-results/bode/12v_loop_gain.png
+          test-results/bode/1v8a_ldo_loop_gain.png
+          test-results/bode/1v8a_ldo_psrr.png
+          test-results/efficiency/stage_efficiency.png
+          test-results/efficiency/system_efficiency.png
+          test-results/efficiency/loss_breakdown.png
+          test-results/thermal/junction_temperatures.png
+          test-results/thermal/ambient_derating.png
+          test-results/emc-prescan/conducted_prescan.png
+          test-results/emc-prescan/input_filter_middlebrook.png
+          test-results/load-regulation/load_regulation.png
+          test-results/line-regulation/line_regulation_5v.png
+          test-results/transient/5v_load_step.png
+          test-results/transient/3v3_load_step.png
+          test-results/transient/12v_load_step.png
+          PLOTS
           exit $missing
 
-      - name: Upload regenerated results
+      # The README quotes these. If one stops being true the README is wrong,
+      # so the build should fail rather than the README quietly rotting.
+      - name: Headline numbers still hold
+        run: python scripts/check_headline.py
+
+      # Artifacts count against a free account's storage quota, so they are
+      # uploaded only when somebody asks for a run by hand and actually wants
+      # to look at the results.
+      - name: Upload results
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: design-results
+          retention-days: 7
           path: |
             outputs/
             test-results/
             docs/spec.md
             docs/validation_report.md
 
-  headline:
-    name: Headline numbers meet the specification
+  # Library behaviour across Python versions is what this catches, and that
+  # does not change when this repository changes. Run it by hand after a
+  # dependency bump, not on every push. Tests only, no regeneration, because
+  # the generated outputs are already known to be identical on both ends of
+  # the supported range.
+  python-versions:
+    name: Tests on Python ${{ matrix.python }}
+    if: github.event_name == 'workflow_dispatch' && inputs.python_matrix
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9', '3.11']
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python }}
           cache: pip
 
       - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -e .
+        run: pip install -r requirements.txt
 
-      # The README quotes these. If one of them stops being true the README is
-      # wrong, so the build should fail rather than the README quietly rotting.
-      - name: Check the numbers the README quotes
-        run: python scripts/check_headline.py
+      - name: Tests
+        run: python -m pytest tests -q
