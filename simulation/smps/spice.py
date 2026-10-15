@@ -200,7 +200,7 @@ Resr  cx  0  {_f(p['Cout_esr_ohm'])}
 Cin   vin ci {_f(p['Cin_F'])}
 Rcin  ci  0  {_f(p['Cin_esr_ohm'])}
 Vramp ramp 0 PULSE(0 {_f(p['v_ramp_vpp'])} 0 {_f(ts * 0.98)} {_f(ts * 0.02)} 1n {_f(ts)})
-Bpwm  gate 0 V = 0.5 + 0.5*tanh(2000*(V(comp) - V(ramp)))
+Bpwm  gate 0 V = min(max(0.5 + 1000*(V(comp) - V(ramp)), 0), 1)
 R1    out fb {_f(c.r1_ohm)}
 Rbot  fb  0  {_f(c.rbot_ohm)}
 R3    out n3 {_f(c.r3_ohm)}
@@ -212,21 +212,21 @@ Bea   comp 0 V = min(max(1e5 * ({_f(p['v_ref_v'])} - V(fb)), 0), {_f(p['v_ramp_v
 * Separate models, because the two devices do not have the same Rds(on) and
 * using one model for both was quietly putting the high side figure on the low
 * side as well.
-.model swhs sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0)
-.model swls sw(ron={_f(p['rds_ls_ohm'])} roff=1meg vt=0.5 vh=0)
+.model swhs sw(ron={_f(p['rds_hs_ohm'])} roff=1meg vt=0.5 vh=0.1)
+.model swls sw(ron={_f(p['rds_ls_ohm'])} roff=1meg vt=0.5 vh=0.1)
 * Switching circuits are where a general purpose solver earns its reputation
-* for not converging, and the first attempt at this deck duly failed mid edge.
-* What fixes it is giving the comparator a finite transition region instead of
-* an infinitely sharp step: at this gain it is about 0.5 mV wide, which is
-* under a nanosecond of ramp. Gear integration helps too, being better damped
-* than trapezoidal on a stiff switching node.
+* for not converging, and this deck took three attempts.
 *
-* The switches deliberately have no hysteresis. Adding some also cures the
-* convergence, but it opens a window where neither device conducts, and with
-* no body diodes modelled the inductor current then drives the switch node
-* through a megohm and rings. That showed up as more than twice the expected
-* output ripple, which is a modelling artefact rather than a property of the
-* converter.
+* An infinitely sharp comparator fails outright. A tanh instead fails
+* differently and more interestingly: it saturates, so its derivative vanishes,
+* Newton is left with no gradient to follow and the gate node runs away to a
+* thousand volts. What works is a comparator that is linear across a narrow
+* band and hard limited outside it, so the Jacobian is finite where it matters
+* and the output cannot leave [0, 1] however badly an iteration misbehaves.
+* The band is 1 mV wide, which at this ramp slope is one nanosecond.
+*
+* Hysteresis on the switches, Gear integration and a hundred time points per
+* switching period do the rest.
 .options method=gear maxord=2 reltol=1e-3 abstol=1e-10 vntol=1e-6 itl4=200
 .control
 tran {_f(ts / 200)} 1m 0.9m {_f(ts / 100)}
