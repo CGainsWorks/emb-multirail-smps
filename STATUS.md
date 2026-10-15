@@ -62,7 +62,10 @@ EMC**, with the input filter also checked against Middlebrook's criterion.
 
 **A third simulator agrees.** The compensation networks are emitted as ngspice
 decks and run by CI on every push, with the results compared against the closed
-forms to 0.05 dB and 0.5 degrees. The hand derivation and the switching
+forms. Worst disagreement across the three networks and the input filter is
+0.0001 dB and 0.110 degrees, against an enforced tolerance of 0.01 dB and
+0.2 degrees. The switching deck settles the +3V3 rail at 3.3185 V, which is
+what the divider asks for to five figures. The hand derivation and the switching
 simulator are both written here, so a shared misconception in them would agree
 with itself; ngspice knows nothing about either. LTspice decks are emitted in a
 separate directory and have never been run, because no Linux runner has an

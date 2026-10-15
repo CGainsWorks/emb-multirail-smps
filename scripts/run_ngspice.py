@@ -51,8 +51,13 @@ AC_BAND = {
     "input_filter_ac.cir": (1e5, 2e7),
 }
 
-GAIN_TOL_DB = 0.05
-PHASE_TOL_DEG = 0.5
+# Set just above what is actually achieved rather than at a comfortable round
+# number, so the tolerance is a real guarantee rather than somewhere for drift
+# to hide. Observed: 0.0001 dB and 0.110 degrees, the latter entirely on the
+# Type III, where the deck's amplifier has a gain of 1e6 and the closed form it
+# is compared against has an infinite one.
+GAIN_TOL_DB = 0.01
+PHASE_TOL_DEG = 0.2
 
 
 def find_ngspice(explicit: str | None) -> str | None:

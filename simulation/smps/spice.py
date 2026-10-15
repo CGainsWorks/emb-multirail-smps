@@ -225,8 +225,13 @@ Bea   comp 0 V = min(max(1e5 * ({_f(p['v_ref_v'])} - V(fb)), 0), {_f(p['v_ramp_v
 * and the output cannot leave [0, 1] however badly an iteration misbehaves.
 * The band is 1 mV wide, which at this ramp slope is one nanosecond.
 *
-* Hysteresis on the switches, Gear integration and a hundred time points per
-* switching period do the rest.
+* Hysteresis on the switches and Gear integration do the rest.
+*
+* The time step matters more than it looks. At fifty points per switching
+* period this deck reported 6.4 mVpp of output ripple against 2.7 mVpp from
+* the simulator in this repository; at a hundred it reports 3.9 mVpp. The
+* first number was mostly discretisation, not circuit behaviour, and it would
+* have been easy to publish it and invent an explanation.
 .options method=gear maxord=2 reltol=1e-3 abstol=1e-10 vntol=1e-6 itl4=200
 .control
 tran {_f(ts / 200)} 1m 0.9m {_f(ts / 100)}

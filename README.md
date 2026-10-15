@@ -53,8 +53,27 @@ results compared against the closed forms.
 ngspice is free, open source and the simulator inside KiCad. Each compensator
 deck is passive components plus one ideal controlled source, so ngspice and
 `smps.compensation` are solving the same linear system by completely different
-means and have to agree to numerical precision. The tolerance is 0.05 dB and
-0.5 degrees, and the run prints the worst disagreement it found.
+means and have to agree to numerical precision. They do:
+
+| deck | worst gain error | worst phase error |
+|---|---|---|
+| +5V Type II | 0.0000 dB | 0.000 deg |
+| +12V Type II | 0.0000 dB | 0.000 deg |
+| +3V3 Type III | 0.0001 dB | 0.110 deg |
+| input filter | 0.0000 dB | magnitude only |
+
+The enforced tolerance is 0.01 dB and 0.2 degrees, set just above what is
+achieved rather than at a comfortable round number, so it is a guarantee rather
+than somewhere for drift to hide. The 0.110 degrees is the whole of the
+disagreement and it is explained: the deck's amplifier has a gain of a million
+and the closed form it is compared against has an infinite one.
+
+The switching deck is also run. ngspice settles the +3V3 rail at **3.3185 V**
+against the 3.3185 V the feedback divider asks for, and reads 3.86 mVpp of
+ripple against 2.74 mVpp from the simulator here. The two are compared against
+each other rather than only against the 20 mVpp limit, because both can sit
+under a limit while disagreeing by a factor of two, and that disagreement is
+the interesting number.
 
 LTspice decks are emitted too, in a separate directory, and **have never been
 run**: it is a Windows and Mac GUI with no Linux package, so no runner can
