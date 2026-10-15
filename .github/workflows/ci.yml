@@ -107,6 +107,18 @@ jobs:
       - name: Committed outputs match a fresh run
         run: python scripts/check_outputs_current.py
 
+      # ngspice is free, open source and the simulator inside KiCad. About
+      # fifteen seconds of install buys a third independent route to the
+      # compensator numbers, from a tool that knows nothing about this
+      # repository. The update is only run if the direct install misses.
+      - name: Install ngspice
+        run: |
+          sudo apt-get install -y -qq ngspice             || (sudo apt-get update -qq && sudo apt-get install -y -qq ngspice)
+          ngspice -v | head -1
+
+      - name: ngspice agrees with the models
+        run: python scripts/run_ngspice.py
+
       - name: Every plot was produced
         run: |
           missing=0

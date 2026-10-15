@@ -12,8 +12,8 @@ import re
 import pytest
 
 from smps import components as C
-from smps.netlist import (SCH_NETS, SCH_PARTS, netlist_stats, protel_netlist,
-                          spice_decks)
+from smps.netlist import (SCH_NETS, SCH_PARTS, netlist_stats,
+                          protel_netlist)
 
 DESIGNATORS = {d for d, _, _ in SCH_PARTS}
 ALL_PINS = [p for pins in SCH_NETS.values() for p in pins]
@@ -75,49 +75,6 @@ def test_netlist_stats_agree_with_the_data():
     assert s["single_pin_nets"] == 0
     assert s["duplicate_pin_connections"] == 0
     assert s["parts_with_no_net"] == 0
-
-
-# --------------------------------------------------------------------------
-# SPICE decks
-# --------------------------------------------------------------------------
-
-@pytest.mark.parametrize("name,text", sorted(spice_decks().items()))
-def test_deck_is_syntactically_plausible(name, text):
-    lines = [l for l in text.splitlines() if l.strip()]
-    assert lines[0].startswith("*"), "a SPICE deck's first line is a comment"
-    assert lines[-1].strip().lower() == ".end"
-    assert any(l.lower().startswith((".ac", ".tran")) for l in lines)
-    # No unresolved format placeholders left in a generated file.
-    assert "{}" not in text and "None" not in text
-
-
-@pytest.mark.parametrize("name,text", sorted(spice_decks().items()))
-def test_deck_component_values_are_finite_numbers(name, text):
-    for token in re.findall(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", text):
-        assert float(token) == float(token)  # not NaN
-
-
-def test_ac_decks_carry_the_values_the_design_module_chose():
-    from smps import design as D
-
-    c5 = D.buck5_compensator()
-    deck = spice_decks()["comp_buck5_typeii_ac.cir"]
-    assert f"{c5.rc_ohm:.6g}" in deck
-    assert f"{c5.cc_f:.6g}" in deck
-
-    c3 = D.buck3v3_compensator()
-    deck = spice_decks()["comp_buck3v3_typeiii_ac.cir"]
-    assert f"{c3.rf_ohm:.6g}" in deck
-    assert f"{c3.cf3_f:.6g}" in deck
-
-
-def test_no_switching_deck_is_emitted_for_the_current_mode_rails():
-    """Emitting one would mean inventing a controller's internal slope
-    compensation, blanking and latch. It would run, it would look convincing
-    and it would validate nothing. See spice_decks.__doc__."""
-    names = " ".join(spice_decks())
-    assert "buck5" not in names.replace("comp_buck5", "")
-    assert "boost12_transient" not in names
 
 
 # --------------------------------------------------------------------------

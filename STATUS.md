@@ -60,10 +60,19 @@ EMC**, with the input filter also checked against Middlebrook's criterion.
 **Netlist.** A Protel format connection list that Altium imports, 51 parts and
 29 nets, with integrity checks in the test suite.
 
-**Test suite.** 110 tests, no hardware needed, running in about a minute.
+**A third simulator agrees.** The compensation networks are emitted as ngspice
+decks and run by CI on every push, with the results compared against the closed
+forms to 0.05 dB and 0.5 degrees. The hand derivation and the switching
+simulator are both written here, so a shared misconception in them would agree
+with itself; ngspice knows nothing about either. LTspice decks are emitted in a
+separate directory and have never been run, because no Linux runner has an
+LTspice. An earlier version of this repository claimed the decks were portable
+between the two, which was untrue and is now asserted against.
+
+**Test suite.** 123 tests, no hardware needed, running in about a minute.
 Among them, a set that reads the generated CSVs back and fails if any number
 quoted in the README has drifted away from them, which it had, twice, before
-that check existed.
+that check existed. One test skips unless ngspice is installed; CI installs it.
 
 **CI, running.** One job: tests, regeneration, a check that the committed
 results still match what the code produces, and a guard on every number the

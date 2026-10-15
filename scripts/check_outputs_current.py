@@ -55,6 +55,11 @@ TARGETS = ("outputs", "test-results", "docs/spec.md", "docs/validation_report.md
 #: every plot was produced and is non-empty.
 SKIP_SUFFIXES = {".png", ".pdf", ".svg", ".jpg"}
 
+#: Hand written files that happen to live in a generated directory. They are
+#: documentation about what is generated, not output of the generator, so
+#: editing one is not evidence that the results are stale.
+SKIP_PATHS = {"outputs/README.md", "test-results/README.md"}
+
 NUMBER = re.compile(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?")
 
 
@@ -62,7 +67,8 @@ def tracked_files() -> list[str]:
     out = subprocess.run(["git", "ls-files", "--", *TARGETS],
                          capture_output=True, text=True, check=True).stdout
     return [p for p in out.splitlines()
-            if p and Path(p).suffix.lower() not in SKIP_SUFFIXES]
+            if p and p not in SKIP_PATHS
+            and Path(p).suffix.lower() not in SKIP_SUFFIXES]
 
 
 def committed(path: str) -> str | None:
@@ -178,7 +184,8 @@ def main() -> int:
     untracked = subprocess.run(
         ["git", "ls-files", "--others", "--exclude-standard", "--", *TARGETS],
         capture_output=True, text=True, check=True).stdout.split()
-    untracked = [p for p in untracked if Path(p).suffix.lower() not in SKIP_SUFFIXES]
+    untracked = [p for p in untracked if p not in SKIP_PATHS
+                 and Path(p).suffix.lower() not in SKIP_SUFFIXES]
 
     print(f"compared {len(files)} generated files against HEAD")
     print(f"tolerance: |a-b| <= {args.atol:g} + {args.rtol:g}|b|")

@@ -6,9 +6,11 @@ here by hand; it will be overwritten.
 | file | what it is |
 |---|---|
 | `netlists/board.net` | Protel format netlist, which Altium imports directly. 51 parts, 29 nets, integrity checked in `tests/test_outputs.py` |
-| `netlists/buck3v3_transient.cir` | Full switching SPICE deck for the voltage mode buck. Runs in LTspice and in ngspice |
-| `netlists/comp_*_ac.cir` | AC decks of each compensation network on its own. Passive networks plus an ideal amplifier, so SPICE evaluates exactly the transfer function `smps.compensation` claims. An independent check of the compensator maths |
-| `netlists/input_filter_ac.cir` | AC deck of the input filter and LISN |
+| `netlists/ngspice/` | Strict ngspice decks. **CI runs these on every push** and compares the results against the Python models with `scripts/run_ngspice.py` |
+| `netlists/ltspice/` | The same circuits in LTspice dialect. **Never executed**, because LTspice is a Windows and Mac GUI with no Linux package, so no runner can run it. They are here because LTspice is where a vendor's own controller model would go once a part is chosen |
+| `netlists/*/comp_*_ac.cir` | AC decks of each compensation network alone. Passive components plus one ideal controlled source, so ngspice and the closed form are solving the same linear system by different means and must agree to numerical precision |
+| `netlists/*/buck3v3_transient.cir` | Full switching deck for the voltage mode buck |
+| `netlists/*/input_filter_ac.cir` | AC deck of the input filter and LISN |
 | `bom.csv` | Bill of materials. Every part number is marked `candidate, unverified` |
 | `VERIFY.csv` | Every number in this repository that is an assumption rather than a datasheet value, and what has to be checked before ordering |
 | `compensation_values.csv` | The chosen compensation network values |
@@ -27,6 +29,13 @@ peak current modulator is a comparator, a latch, an artificial ramp and a
 blanking window, and the numbers that matter live inside a specific controller
 which has not been selected. An invented version would run, look convincing and
 validate nothing. The right move once a controller is chosen is to run the
-vendor's own model.
+vendor's own model, which is what the LTspice decks are a starting point for.
+
+The two dialects are not interchangeable, and an earlier version of this file
+claimed they were. `Rser=` on a reactive component, `IF(a,b,c)` and
+`LIMIT(x,lo,hi)` are LTspice extensions that ngspice rejects, so the ngspice
+decks use explicit series resistors, a ternary and `min(max(...))`.
+`tests/test_spice.py` asserts no LTspice-only token survives into an ngspice
+deck.
 
 See [`../STATUS.md`](../STATUS.md) and [`../altium/README.md`](../altium/README.md).

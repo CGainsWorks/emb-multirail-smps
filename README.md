@@ -43,6 +43,26 @@ cycle by cycle and measuring. They separate above about a fifth of the
 switching frequency, which is exactly where an averaged model is supposed to
 stop being accurate.
 
+### A third opinion, from a tool that knows nothing about this repository
+
+The hand derivation and the switching simulator are both mine, which is a
+weakness: a shared misconception would agree with itself. So the compensator
+networks are also emitted as **ngspice** decks and run on every push, with the
+results compared against the closed forms.
+
+ngspice is free, open source and the simulator inside KiCad. Each compensator
+deck is passive components plus one ideal controlled source, so ngspice and
+`smps.compensation` are solving the same linear system by completely different
+means and have to agree to numerical precision. The tolerance is 0.05 dB and
+0.5 degrees, and the run prints the worst disagreement it found.
+
+LTspice decks are emitted too, in a separate directory, and **have never been
+run**: it is a Windows and Mac GUI with no Linux package, so no runner can
+execute it. The two dialects are genuinely not interchangeable, which an
+earlier version of this repository wrongly claimed; `Rser=`, `IF()` and
+`LIMIT()` are LTspice extensions that ngspice rejects, and a test now asserts
+none of them reaches an ngspice deck.
+
 ---
 
 ## Run it
@@ -61,9 +81,10 @@ written by hand.
 make test
 ```
 
-110 tests, about a minute, no hardware needed. They include a set that reads
-the generated CSVs back and fails if any number quoted in this README has
-drifted away from them.
+123 tests, about a minute, no hardware needed. One of them skips unless
+ngspice is installed; CI installs it. They include a set that reads the
+generated CSVs back and fails if any number quoted in this README has drifted
+away from them.
 
 ```bash
 make check
@@ -77,8 +98,9 @@ all, because it looks authoritative.
 
 ### CI
 
-One job, which does four things in order: runs the tests, regenerates every
-output, checks the regenerated results still match what is committed, and
+One job, which does five things in order: runs the tests, regenerates every
+output, checks the regenerated results still match what is committed, runs the
+generated decks in **ngspice** and compares them against the Python models, and
 checks that every number this README quotes is still true. `make ci` runs the
 same sequence locally.
 
@@ -141,7 +163,7 @@ schemes and the switching frequencies: [`docs/spec.md`](docs/spec.md) and
 | [`docs/stackup.md`](docs/stackup.md) | Four layer stackup and fabrication notes |
 | [`docs/layout_rules.md`](docs/layout_rules.md) | The constraints a layout has to satisfy for any of these results to mean anything |
 | [`docs/bring_up.md`](docs/bring_up.md) | Bring-up procedure with a predicted value for every measurement. Not performed |
-| [`outputs/`](outputs/) | Protel netlist for Altium, SPICE decks, BOM, compensation values, and the verification checklist |
+| [`outputs/`](outputs/) | Protel netlist for Altium, SPICE decks in both ngspice and LTspice dialects, BOM, compensation values, and the verification checklist |
 | [`test-results/`](test-results/) | Simulated Bode, regulation, transient, efficiency, thermal and EMC results |
 | [`simulation/smps/`](simulation/smps/) | The models. State space averaging, current mode loop closure, compensator design, the switching simulator and the virtual network analyser |
 
