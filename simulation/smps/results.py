@@ -250,8 +250,20 @@ def load_transient(rail_name: str, cycles_before: int = 1500,
     # Settling: last time the envelope leaves a band of one percent of the
     # nominal output around the final value.
     band = 0.01 * r.v_out_v
-    outside = np.where(np.abs(v_post - v_settled) > band)[0]
-    settle_us = 1e6 * float(t_post[outside[-1]]) if outside.size else 0.0
+    # The crossing is interpolated between the last sample outside the band
+    # and the next one. Taking the sample itself quantises the answer to the
+    # sample spacing, and which side of a crossing a sample lands on is
+    # exactly the kind of last bit difference that varies between platforms.
+    err = np.abs(v_post - v_settled) - band
+    outside = np.where(err > 0)[0]
+    if not outside.size:
+        settle_us = 0.0
+    elif outside[-1] + 1 < len(err):
+        i = outside[-1]
+        frac = err[i] / (err[i] - err[i + 1])
+        settle_us = 1e6 * float(t_post[i] + frac * (t_post[i + 1] - t_post[i]))
+    else:
+        settle_us = 1e6 * float(t_post[outside[-1]])
 
     return TransientResult(rail_name, 1e6 * (res.t - t0), res.v_out, v_settled,
                            undershoot, overshoot, settle_us, r.load_step_a)

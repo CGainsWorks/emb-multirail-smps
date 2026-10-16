@@ -77,8 +77,8 @@ shutdown.
 
 Bring up in tree order and confirm each before enabling the next.
 
-- [ ] +3V3, expect **3.319 V**. Ripple at full load, expect about 2.7 mVpp.
-- [ ] +12V, expect **11.990 V**. Ripple at full load, expect about 25.6 mVpp.
+- [ ] +3V3, expect **3.321 V**. Ripple at full load, expect about 2.7 mVpp.
+- [ ] +12V, expect **12.026 V**. Ripple at full load, expect about 25.7 mVpp.
 - [ ] +1V8A, expect 1.800 V. Ripple, expect well under 1 mVpp.
 - [ ] With every rail at full load, confirm the +5V stage is delivering about
       **4.6 A**, not the 1.5 A its connector is rated for. That is the power
@@ -90,9 +90,9 @@ Electronic load in fast transient mode, scope AC coupled on the output.
 
 | rail | step | expected undershoot | expected settling |
 |---|---|---|---|
-| +5V | 1.5 A | 100 mV | 32 us |
-| +3V3 | 1.0 A | 42 mV | 5 us |
-| +12V | 0.2 A | 199 mV | 226 us |
+| +5V | 1.5 A | 99 mV | 28 us |
+| +3V3 | 1.0 A | 43 mV | 5 us |
+| +12V | 0.2 A | 198 mV | 241 us |
 
 Limits are 150 mV / 100 us, 100 mV / 50 us and 300 mV / 1 ms respectively.
 
