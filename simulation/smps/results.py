@@ -213,7 +213,10 @@ class TransientResult:
             "undershoot_mv": round(self.undershoot_mv, 2),
             "overshoot_mv": round(self.overshoot_mv, 2),
             "limit_mv": round(1e3 * r.v_deviation_max_v, 2),
-            "settle_time_us": round(self.settle_time_us, 2),
+            # A tenth of a microsecond: the time a rippling waveform last
+            # leaves a band reproduces to about 0.01 us between platforms,
+            # so a second decimal would be quoting solver noise.
+            "settle_time_us": round(self.settle_time_us, 1),
             "settle_limit_us": round(1e6 * r.settle_time_max_s, 2),
         }
 
