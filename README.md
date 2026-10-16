@@ -102,7 +102,7 @@ written by hand.
 make test
 ```
 
-123 tests, about a minute, no hardware needed. One of them skips unless
+129 tests, about a minute, no hardware needed. One of them skips unless
 ngspice is installed; CI installs it. They include a set that reads the
 generated CSVs back and fails if any number quoted in this README has drifted
 away from them.

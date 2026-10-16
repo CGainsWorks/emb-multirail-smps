@@ -1,0 +1,184 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "4fee3d7a-f86f-5a7a-a8c5-6ddb37fadb20")
+	(paper "A3")
+	(title_block
+		(title "Multi-rail switch-mode power supply")
+		(date "2026-10-16")
+		(rev "A")
+		(company "CGainsWorks")
+		(comment 1 "Generated from simulation/smps/hardware.py by scripts/kicad/gen_schematic.py")
+		(comment 2 "Not fabricated, not assembled, not measured")
+	)
+	(lib_symbols)
+	(sheet
+		(at 30.48 60.96)
+		(size 81.28 30.48)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "fa4f1393-64c4-564e-b36b-730def805926")
+		(property "Sheetname" "input_5v"
+			(at 30.48 60.2484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "input_5v.kicad_sch"
+			(at 30.48 92.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "emb-multirail-smps"
+				(path "/4fee3d7a-f86f-5a7a-a8c5-6ddb37fadb20"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 127 60.96)
+		(size 81.28 30.48)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "096741ca-bb16-5fad-b1b5-63ea72189389")
+		(property "Sheetname" "buck_3v3"
+			(at 127 60.2484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "buck_3v3.kicad_sch"
+			(at 127 92.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "emb-multirail-smps"
+				(path "/4fee3d7a-f86f-5a7a-a8c5-6ddb37fadb20"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 223.52 60.96)
+		(size 81.28 30.48)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "59d3e196-a881-578f-beb9-7e815c4d176c")
+		(property "Sheetname" "boost_12v"
+			(at 223.52 60.2484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "boost_12v.kicad_sch"
+			(at 223.52 92.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "emb-multirail-smps"
+				(path "/4fee3d7a-f86f-5a7a-a8c5-6ddb37fadb20"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 320.04 60.96)
+		(size 81.28 30.48)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "762a2eff-3527-50c1-be31-9ca599ce17d2")
+		(property "Sheetname" "ldo_outputs"
+			(at 320.04 60.2484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "ldo_outputs.kicad_sch"
+			(at 320.04 92.0084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "emb-multirail-smps"
+				(path "/4fee3d7a-f86f-5a7a-a8c5-6ddb37fadb20"
+					(page "5")
+				)
+			)
+		)
+	)
+	(text "Four rail supply, 8 to 36 V in: +5V synchronous buck (LTC3891), +3V3 voltage\nmode buck from +5V (TPS54317), +12V synchronous boost from +5V (TPS43061) and a\n+1V8A low noise LDO from +3V3 (LP5912-1.8).\n\nEvery value marked Basis = model is the one the simulation in simulation/smps uses,\nand scripts/kicad/check_netlist.py fails CI if the two disagree. Values marked\ndatasheet are sized from the controller data sheet and are not simulated.\n\nNothing on these sheets has been built or measured."
+		(exclude_from_sim no)
+		(at 30.48 114.3 0)
+		(effects
+			(font
+				(size 1.778 1.778)
+			)
+			(justify left top)
+		)
+		(uuid "579007ca-3b59-5603-bd8b-12bd21e900fe")
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

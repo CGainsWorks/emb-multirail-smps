@@ -31,6 +31,7 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'outputs/**'
+      - 'hardware/**'
       - 'test-results/**'
       - 'requirements.txt'
       - 'pyproject.toml'
@@ -41,6 +42,7 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'outputs/**'
+      - 'hardware/**'
       - 'test-results/**'
       - 'requirements.txt'
       - 'pyproject.toml'
@@ -152,6 +154,13 @@ jobs:
       - name: Headline numbers still hold
         run: python scripts/check_headline.py
 
+      # The KiCad schematic, held to the simulation. ERC in the pinned KiCad
+      # image with every severity on, then the netlist it exports checked
+      # value by value against the ngspice decks, the models and the
+      # compensation table. Pulling the image is most of the cost.
+      - name: KiCad ERC and the schematic against the simulation
+        run: bash scripts/kicad/run_checks.sh
+
       # Artifacts count against a free account's storage quota, so they are
       # uploaded only when somebody asks for a run by hand and actually wants
       # to look at the results.
@@ -166,6 +175,7 @@ jobs:
             test-results/
             docs/spec.md
             docs/validation_report.md
+            hardware/kicad/build/
 
   # Library behaviour across Python versions is what this catches, and that
   # does not change when this repository changes. Run it by hand after a

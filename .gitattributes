@@ -8,6 +8,12 @@
 *.json    text eol=lf
 *.sh      text eol=lf
 *.yml     text eol=lf
+*.kicad_sch  text eol=lf
+*.kicad_pcb  text eol=lf
+*.kicad_pro  text eol=lf
+*.kicad_sym  text eol=lf
+*.kicad_dru  text eol=lf
+sym-lib-table text eol=lf
 
 # Binary. Plots are a few tens of kilobytes each and live in history.
 *.png     binary

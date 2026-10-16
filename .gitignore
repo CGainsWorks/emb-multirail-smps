@@ -7,6 +7,12 @@ venv/
 .pytest_cache/
 .coverage
 
+# KiCad: build output from scripts/kicad, local state and backups
+hardware/kicad/build/
+*.kicad_prl
+fp-info-cache
+*-backups/
+
 # Altium, for when a project exists
 History/
 Project Logs*/
