@@ -5,7 +5,8 @@ transmission line, so the stackup is chosen for current handling, thermal
 spreading and return path quality rather than for impedance control.
 
 **No board has been fabricated.** These are the fabrication notes a board house
-would be given, not a record of what one built.
+would be given, not a record of what one built. The KiCad board in
+`hardware/kicad/` is set up to this stackup.
 
 ---
 
@@ -66,7 +67,7 @@ not apply.
 | Material | FR-4, Tg 150 or better |
 | Finished thickness | 1.6 mm plus or minus 10 % |
 | Copper | 2/1/1/2 oz |
-| Minimum track and gap | 0.15 mm on signals, 0.25 mm on power |
+| Minimum track and gap | 0.15 mm on signals, 0.20 mm on power. 0.20 mm is what a 0.5 mm pitch QFN leaves between a power pin and its neighbour |
 | Minimum drill | 0.30 mm |
 | Via | 0.30 mm drill, 0.60 mm pad, tented on L1 where under components |
 | Thermal vias | 0.30 mm, unfilled, under every exposed pad |

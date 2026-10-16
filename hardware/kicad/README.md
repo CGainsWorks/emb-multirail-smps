@@ -14,6 +14,7 @@ Altium, which is not available here.
 | `boost_12v.kicad_sch` | +12V synchronous boost (TPS43061) |
 | `ldo_outputs.kicad_sch` | +1V8A LDO (LP5912-1.8), its input RC filter, preload and the output terminal |
 | `smps.kicad_sym` | Symbols for the two controllers KiCad's library does not ship, drawn from their data sheet pin tables |
+| `emb-multirail-smps.kicad_pcb` | Four layer board, 100 by 80 mm, to `docs/stackup.md` |
 | `emb-multirail-smps.kicad_pro` | Project, net classes and design rules |
 | `emb-multirail-smps.kicad_dru` | One custom rule: pad to pad gaps inside library land patterns |
 
@@ -69,3 +70,15 @@ it is less pleasant to read than a schematic drawn by hand. Regenerate it with
     python scripts/kicad/gen_schematic.py --symbols <KiCad symbols directory>
 
 and the check above confirms the result still matches.
+
+The board was placed by `scripts/kicad/gen_pcb.py`, one region per stage with
+the switching loop parts in the first row of each. It was routed by
+`scripts/kicad/route_board.sh`: plane vias for every ground, VIN, +5V and +3V3
+pad, 0.30 mm thermal vias under the exposed pads, Freerouting 2.4.1 for the
+rest, power tracks widened afterwards as far as clearance allows and up to
+three repair passes that take up whatever DRC objects to and route again.
+
+**The board is not finished.** Five connections are unrouted (STATUS.md lists
+them) and neither the generated placement nor the autorouted copper has been
+through the review in `docs/layout_rules.md`. DRC is otherwise clean and CI
+holds it there.

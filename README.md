@@ -1,12 +1,15 @@
 # emb-multirail-smps
 
-> **Status: designed and validated in simulation. No hardware exists.**
-> The electrical design is complete: specification, topology, sizing, hand
-> derived loop compensation, and a cycle accurate switching simulation that
-> confirms the compensation gives the margins it was designed for. **No board
-> has been fabricated, assembled, powered or measured, and there is no Altium
-> project.** Everything under `test-results/` is computed. See
-> [STATUS.md](STATUS.md) for the precise breakdown.
+> **Status: designed and validated in simulation, captured in KiCad. No
+> hardware exists.** The electrical design is complete: specification,
+> topology, sizing, hand derived loop compensation and a cycle accurate
+> switching simulation that confirms the compensation gives the margins it was
+> designed for. Real parts are selected, the schematic is captured in KiCad and
+> held to the simulation by CI and a four layer board is laid out with five
+> connections still unrouted and no layout review yet. **No board has been
+> fabricated, assembled, powered or measured.** Everything under
+> `test-results/` is computed. See [STATUS.md](STATUS.md) for the precise
+> breakdown.
 
 A four rail switch-mode supply for an 8 to 36 V DC input: a synchronous buck, a
 second buck cascaded from it, a synchronous boost and a low noise LDO. 21.4 W
@@ -84,6 +87,33 @@ earlier version of this repository wrongly claimed; `Rser=`, `IF()` and
 `LIMIT()` are LTspice extensions that ngspice rejects, and a test now asserts
 none of them reaches an ngspice deck.
 
+### The schematic is the circuit that was simulated
+
+The brief named Altium; the schematic and board are in KiCad 8 instead, in
+[`hardware/kicad/`](hardware/kicad/). Every part has a real part number and
+footprint: LTC3891, TPS54317, TPS43061 and LP5912-1.8 for the four rails,
+with the inductors, shunts and capacitors the simulation was sized for. Each
+controller's reference and error amplifier figures came from its data sheet
+into the model and the compensation was re-derived with them; the tables
+above are the result.
+
+CI runs `kicad-cli` in a pinned KiCad image on every push:
+
+| check | result |
+|---|---|
+| ERC, every severity | 0 errors, 0 warnings |
+| exported netlist against the ngspice decks, the models, the compensation table and each rail's set point | 575 checks, 0 failures |
+| DRC with schematic parity on the four layer board | 0 clearance, short or parity errors; 5 connections unrouted |
+
+The cross-check is the point. Every R, L and C in every deck ngspice runs is
+matched to the schematic part it stands for, by value after the DC bias
+derating the model applies and by the nets it joins, so a value changed in
+KiCad fails the build. The board is generated placement and autorouted copper
+on the [`docs/stackup.md`](docs/stackup.md) stackup. It is DRC clean apart
+from the five open connections listed in STATUS.md and has not been through
+the review in [`docs/layout_rules.md`](docs/layout_rules.md), so it is a
+starting point, not a board to order.
+
 ---
 
 ## Run it
@@ -119,11 +149,12 @@ all, because it looks authoritative.
 
 ### CI
 
-One job, which does five things in order: runs the tests, regenerates every
+One job, which does six things in order: runs the tests, regenerates every
 output, checks the regenerated results still match what is committed, runs the
-generated decks in **ngspice** and compares them against the Python models, and
-checks that every number this README quotes is still true. `make ci` runs the
-same sequence locally.
+generated decks in **ngspice** and compares them against the Python models,
+checks that every number this README quotes is still true and runs the
+**KiCad** ERC, netlist cross-check and DRC. `make ci` runs the same sequence
+locally; `make kicad` runs the KiCad part alone, with Docker.
 
 It is built to be cheap, because the account that runs it is a free one:
 
@@ -184,7 +215,8 @@ schemes and the switching frequencies: [`docs/spec.md`](docs/spec.md) and
 | [`docs/stackup.md`](docs/stackup.md) | Four layer stackup and fabrication notes |
 | [`docs/layout_rules.md`](docs/layout_rules.md) | The constraints a layout has to satisfy for any of these results to mean anything |
 | [`docs/bring_up.md`](docs/bring_up.md) | Bring-up procedure with a predicted value for every measurement. Not performed |
-| [`outputs/`](outputs/) | Protel netlist for Altium, SPICE decks in both ngspice and LTspice dialects, BOM, compensation values, and the verification checklist |
+| [`hardware/kicad/`](hardware/kicad/) | KiCad 8 schematic and four layer board, with the custom symbols, net classes and design rules |
+| [`outputs/`](outputs/) | Protel netlist for Altium, SPICE decks in both ngspice and LTspice dialects, BOM with part numbers, compensation values and the verification checklist |
 | [`test-results/`](test-results/) | Simulated Bode, regulation, transient, efficiency, thermal and EMC results |
 | [`simulation/smps/`](simulation/smps/) | The models. State space averaging, current mode loop closure, compensator design, the switching simulator and the virtual network analyser |
 
@@ -302,18 +334,19 @@ The full list is in [STATUS.md](STATUS.md). The ones that matter most:
 
 * **Nothing has been measured.** No board, no parts, no instruments. Every
   directory called `test-results` contains simulation output.
-* **No Altium project.** No schematic, no layout, no Gerbers. What exists
-  instead is a Protel netlist Altium can import, a stackup definition and a
-  layout constraint set.
-* **No part has been checked against a datasheet.** Every candidate part number
-  is marked unverified and `outputs/VERIFY.csv` lists what has to be confirmed
-  for each one before anything is ordered.
-* **Common mode emissions are not modelled**, because they depend on a layout
-  that does not exist. On real hardware common mode is very often the term that
+* **The layout is not finished.** Five connections are unrouted and the
+  generated placement and autorouted copper have not been reviewed against
+  `docs/layout_rules.md`. KiCad, not Altium.
+* **Parts are selected, not fully verified.** Every part is real and its
+  headline figures were checked; `outputs/VERIFY.csv` lists where the data
+  sheets and the model still disagree. The +3V3 regulator's FET resistance and
+  the input filter parts are the ones that matter most.
+* **Common mode emissions are not modelled**, because they depend on the
+  parasitics of a finished, reviewed layout. On real hardware common mode is very often the term that
   actually fails.
 * **The LDO loop model is behavioural.** That rail's compensation lives inside
-  a part that has not been selected. What this design controls there is the
-  output capacitor, the preload and the input filter.
+  the LP5912 and the model was not refitted to it. What this design controls
+  there is the output capacitor, the preload and the input filter.
 * **Discontinuous conduction is not modelled**, so the light load end of every
   efficiency curve is optimistic.
 * **The thermal model assumes an isothermal board**, which it will not be.

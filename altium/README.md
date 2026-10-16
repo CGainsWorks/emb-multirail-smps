@@ -2,20 +2,17 @@
 
 **There is no Altium project here.**
 
-No schematic has been captured, no board has been laid out and no fabrication
-data exists. Saying otherwise by leaving a stub project in this directory would
-be worse than leaving it empty.
+The brief named Altium, which is not available for this project. The
+schematic and the four layer board are in KiCad 8 instead, in
+[`../hardware/kicad/`](../hardware/kicad/); CI runs ERC, DRC and a
+value by value check of the schematic against the simulation on every push.
 
-What this repository does provide, for someone who wants to start the schematic:
+For someone who does want to start in Altium:
 
 | file | what it is |
 |---|---|
-| [`../outputs/netlists/board.net`](../outputs/netlists/board.net) | Protel format netlist. Altium imports this directly and it gives you every part, footprint and net. |
-| [`../outputs/bom.csv`](../outputs/bom.csv) | Bill of materials with candidate part numbers, all unverified. |
-| [`../outputs/compensation_values.csv`](../outputs/compensation_values.csv) | The compensation network values, generated from the loop design. |
+| [`../outputs/netlists/board.net`](../outputs/netlists/board.net) | Protel format netlist from the same data as the KiCad schematic. Altium imports it; footprint names are KiCad's and need mapping. |
+| [`../outputs/bom.csv`](../outputs/bom.csv) | Bill of materials with real part numbers. |
+| [`../outputs/VERIFY.csv`](../outputs/VERIFY.csv) | Where each selected part's data sheet and the model still disagree. |
 | [`../docs/stackup.md`](../docs/stackup.md) | Four layer stackup and fabrication notes. |
 | [`../docs/layout_rules.md`](../docs/layout_rules.md) | The constraints a layout has to satisfy for the simulated results to mean anything. |
-
-Importing the netlist gives correct connectivity. It does not give a schematic
-that is pleasant to read, and it does not give placement or routing. Both of
-those are the work this repository has not done.

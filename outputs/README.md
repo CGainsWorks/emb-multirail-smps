@@ -5,14 +5,14 @@ here by hand; it will be overwritten.
 
 | file | what it is |
 |---|---|
-| `netlists/board.net` | Protel format netlist, which Altium imports directly. 51 parts, 29 nets, integrity checked in `tests/test_outputs.py` |
+| `netlists/board.net` | Protel format netlist from the same data as the KiCad schematic, which Altium imports directly. 79 parts, 52 nets, integrity checked in `tests/test_outputs.py` |
 | `netlists/ngspice/` | Strict ngspice decks. **CI runs these on every push** and compares the results against the Python models with `scripts/run_ngspice.py` |
 | `netlists/ltspice/` | The same circuits in LTspice dialect. **Never executed**, because LTspice is a Windows and Mac GUI with no Linux package, so no runner can run it. They are here because LTspice is where a vendor's own controller model would go once a part is chosen |
 | `netlists/*/comp_*_ac.cir` | AC decks of each compensation network alone. Passive components plus one ideal controlled source, so ngspice and the closed form are solving the same linear system by different means and must agree to numerical precision |
 | `netlists/*/buck3v3_transient.cir` | Full switching deck for the voltage mode buck |
 | `netlists/*/input_filter_ac.cir` | AC deck of the input filter and LISN |
-| `bom.csv` | Bill of materials. Every part number is marked `candidate, unverified` |
-| `VERIFY.csv` | Every number in this repository that is an assumption rather than a datasheet value, and what has to be checked before ordering |
+| `bom.csv` | Bill of materials, one line per part number, from `smps.hardware`. Every part is real; each is marked `selected, data sheet check pending` |
+| `VERIFY.csv` | For each modelled part, what was read from its data sheet, where the data sheet and the model disagree and what is still an assumption |
 | `compensation_values.csv` | The chosen compensation network values |
 | `sizing_check.csv` | Required against chosen for every sizing line, with pass or fail |
 | `headline.json` | The handful of numbers the README quotes |
@@ -20,16 +20,20 @@ here by hand; it will be overwritten.
 ## What is deliberately not here
 
 The project brief asks this directory to hold Gerbers, drill files, a pick and
-place file, a schematic PDF and 3D models. **None of those exist**, because no
-schematic has been captured and no board has been laid out. Emitting empty or
-placeholder versions of them would be worse than their absence.
+place file, a schematic PDF and 3D models. The schematic and board now exist,
+in `hardware/kicad/` and CI exports Gerbers and drill files from the board on
+every run. They are not committed here, because the board still has five
+unrouted connections and no layout review; a fabrication pack for a board
+that is not ready to build would look more finished than it is. A manual run
+of the workflow uploads them as an artifact for inspection.
 
 There is also no switching SPICE deck for the two peak current mode rails. A
 peak current modulator is a comparator, a latch, an artificial ramp and a
-blanking window, and the numbers that matter live inside a specific controller
-which has not been selected. An invented version would run, look convincing and
-validate nothing. The right move once a controller is chosen is to run the
-vendor's own model, which is what the LTspice decks are a starting point for.
+blanking window; the numbers that matter live inside the specific
+controller. An invented version would run, look convincing and validate
+nothing. Now that the LTC3891 and TPS43061 are chosen, the right move is to run
+the vendors' own models, which is what the LTspice decks are a starting point
+for. That has not been done.
 
 The two dialects are not interchangeable, and an earlier version of this file
 claimed they were. `Rser=` on a reactive component, `IF(a,b,c)` and
