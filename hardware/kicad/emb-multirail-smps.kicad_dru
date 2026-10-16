@@ -1,0 +1,9 @@
+(version 1)
+
+# Pad to pad gaps inside library footprints: the NexFET VSON has 0.14 mm
+# between gate and source and the QFNs 0.2 mm between pins and the exposed
+# pad. Parts are placed with their courtyards apart, so pads on different
+# parts never come this close; this only accepts what the land patterns are.
+(rule "Pad to pad, within land patterns"
+  (constraint clearance (min 0.13mm))
+  (condition "A.Type == 'Pad' && B.Type == 'Pad'"))

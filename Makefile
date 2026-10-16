@@ -10,6 +10,7 @@ help:
 	@echo "make test    run the test suite"
 	@echo "make headline check the numbers the README quotes are still true"
 	@echo "make spice   run the generated decks in ngspice, if it is installed"
+	@echo "make kicad   ERC, DRC and the schematic against the simulation (Docker)"
 	@echo "make check   test, then demo, then confirm nothing changed"
 	@echo "make ci      everything CI does, locally, for no minutes"
 	@echo "make clean   remove generated outputs"
@@ -31,6 +32,10 @@ headline:
 
 spice:
 	$(PY) scripts/run_ngspice.py --skip-missing
+
+# KiCad runs in its pinned container, so this needs Docker but no KiCad.
+kicad:
+	PY=$(PY) bash scripts/kicad/run_checks.sh --board
 
 # The check a reviewer should run: the results in the repository have to be
 # what the code produces today, not what it produced when somebody last
@@ -61,5 +66,6 @@ ci: test demo
 	@echo "all plots present"
 	$(PY) scripts/run_ngspice.py --skip-missing
 	$(PY) scripts/check_headline.py
+	PY=$(PY) bash scripts/kicad/run_checks.sh --board
 
-.PHONY: help setup demo quick test headline spice check ci clean
+.PHONY: help setup demo quick test headline spice kicad check ci clean

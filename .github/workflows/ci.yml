@@ -154,12 +154,14 @@ jobs:
       - name: Headline numbers still hold
         run: python scripts/check_headline.py
 
-      # The KiCad schematic, held to the simulation. ERC in the pinned KiCad
+      # The KiCad project, held to the simulation. ERC in the pinned KiCad
       # image with every severity on, then the netlist it exports checked
       # value by value against the ngspice decks, the models and the
-      # compensation table. Pulling the image is most of the cost.
-      - name: KiCad ERC and the schematic against the simulation
-        run: bash scripts/kicad/run_checks.sh
+      # compensation table, then DRC with schematic parity on the board, and
+      # Gerbers exported for the artifact. Pulling the image is most of the
+      # cost.
+      - name: KiCad ERC, DRC and the schematic against the simulation
+        run: bash scripts/kicad/run_checks.sh --board
 
       # Artifacts count against a free account's storage quota, so they are
       # uploaded only when somebody asks for a run by hand and actually wants
