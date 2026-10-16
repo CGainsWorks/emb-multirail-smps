@@ -51,7 +51,7 @@ def test_designators_are_unique():
 
 def test_ground_reaches_every_stage():
     gnd = set(SCH_NETS["GND"])
-    for expected in ("J1-2", "U1-2", "U3-2", "U4-2", "U5-2"):
+    for expected in ("J1-2", "U1-2", "U3-11", "U4-9", "U5-5"):
         assert expected in gnd
 
 
@@ -88,11 +88,16 @@ def test_every_bom_line_says_what_has_to_be_verified():
 
 
 def test_no_bom_line_claims_a_verified_part_number():
-    """Nothing in this repository has been checked against a live datasheet, so
-    no BOM line may present a manufacturer part number as confirmed."""
+    """Parts have been selected and their headline figures read, but no part
+    has had its whole data sheet checked against the model, so no BOM line may
+    present one as verified."""
     for row in C.bom_rows():
-        assert row["mpn_status"] in {"candidate, unverified", "design value",
-                                     "not selected"}
+        assert row["mpn_status"] in {"selected, data sheet check pending",
+                                     "design value"}
+    from smps import hardware as H
+    for row in H.bom_rows():
+        assert row["status"] == "selected, data sheet check pending"
+        assert row["mpn"] and row["manufacturer"]
 
 
 def test_verify_list_covers_the_whole_bom():

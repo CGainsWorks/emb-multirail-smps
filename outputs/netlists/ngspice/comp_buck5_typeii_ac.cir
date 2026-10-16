@@ -4,11 +4,11 @@
 Vac   out 0 dc 0 ac 1
 Rtop  out fb  26100
 Rbot  fb  0   4990
-Gea   0 comp  fb 0 0.0012
+Gea   0 comp  fb 0 0.002
 Ro    comp 0  2e+07
-Rc    comp nc 3900
-Cc    nc   0  1e-08
-Cp    comp 0  1.5e-10
+Rc    comp nc 2400
+Cc    nc   0  1.5e-08
+Cp    comp 0  2.7e-10
 .control
 ac dec 25 1 10meg
 wrdata typeii_5v.dat v(comp)

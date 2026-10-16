@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from smps import plots, report, results as R  # noqa: E402
 from smps.losses import efficiency_curve  # noqa: E402
-from smps.netlist import write_all, write_csv  # noqa: E402
+from smps.netlist import write_all, write_csv, write_lf  # noqa: E402
 from smps.spec import SYSTEM, rail  # noqa: E402
 
 OUT = REPO / "outputs"
@@ -120,8 +120,7 @@ def main() -> int:
 
     _say("headline numbers and validation report", t0)
     data["headline"] = R.headline()
-    (OUT / "headline.json").write_text(
-        json.dumps(data["headline"], indent=2) + "\n", encoding="utf-8")
+    write_lf(OUT / "headline.json", json.dumps(data["headline"], indent=2) + "\n")
     report.write_validation(DOCS, data)
 
     _say("done", t0)

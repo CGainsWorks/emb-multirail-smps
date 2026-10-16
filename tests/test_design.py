@@ -127,10 +127,17 @@ def test_transfer_function_form_matches_the_closed_form_response():
     c3 = D.buck3v3_compensator()
     _, h = freqs(*type_iii_tf(c3.r1_ohm, c3.r3_ohm, c3.rf_ohm, c3.cf1_f,
                               c3.cf2_f, c3.cf3_f), w)
-    # The simulator carries an ideal amplifier, so compare against the ideal
-    # analytic response.
+    # Without amplifier arguments the transfer function is the ideal one.
     ideal = replace(c3, gbw_hz=float("inf"))
     assert np.allclose(h, ideal.response(f), rtol=1e-9)
+    # With them it is the finite gain bandwidth amplifier the simulator
+    # actually carries, and it has to match the analytic correction to well
+    # above the switching frequency, not just below crossover.
+    f_wide = np.logspace(1, 7, 80)
+    _, h = freqs(*type_iii_tf(c3.r1_ohm, c3.r3_ohm, c3.rf_ohm, c3.cf1_f,
+                              c3.cf2_f, c3.cf3_f, c3.a0_db, c3.gbw_hz),
+                 2 * np.pi * f_wide)
+    assert np.allclose(h, c3.response(f_wide), rtol=1e-6)
     # And confirm the finite gain bandwidth correction is a small correction
     # rather than a different answer, below crossover at least.
     lo = f < 50e3

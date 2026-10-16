@@ -101,9 +101,8 @@ Limits are 150 mV / 100 us, 100 mV / 50 us and 300 mV / 1 ms respectively.
 This is the measurement the whole project is built around, so it is worth doing
 carefully.
 
-- [ ] Fit a 20 ohm resistor in series in the feedback divider, between the
-      output sense point and the top of the divider, if one was not designed
-      in.
+- [ ] Replace the 0 ohm injection link with 20 ohm: R14 on +5V, R22 on +3V3,
+      R32 on +12V. Each sits between the rail and the top of its divider.
 - [ ] Inject across it with the analyser's isolation transformer. Measure
       channel A on the output side, channel B on the divider side. Loop gain is
       `-A/B`, which is the same formula
@@ -116,9 +115,9 @@ carefully.
 
 | rail | expected fc | expected PM |
 |---|---|---|
-| +5V | 49.6 kHz | 62.9 deg |
-| +3V3 | 99.1 kHz | 65.3 deg |
-| +12V | 5.8 kHz | 76.3 deg |
+| +5V | 50.5 kHz | 60.9 deg |
+| +3V3 | 100.2 kHz | 63.3 deg |
+| +12V | 5.9 kHz | 76.6 deg |
 
 Expect the measured phase to be **worse** than the prediction, by five to
 fifteen degrees at crossover. Neither the analytic model nor the switching

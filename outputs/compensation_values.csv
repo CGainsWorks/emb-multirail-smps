@@ -1,4 +1,4 @@
 rail,network,Rc_ohm,Cc_F,Cp_F,f_zero_Hz,f_pole_Hz,Rtop_ohm,Rbot_ohm,R1_ohm,R3_ohm,Rf_ohm,Cf1_F,Cf2_F,Cf3_F,f_zero1_Hz,f_zero2_Hz,f_pole2_Hz,f_pole3_Hz
-+5V,"Type II, gm error amp",3900.0,1e-08,1.5e-10,4080.9,276140.6,26100.0,4990.0,,,,,,,,,,
-+3V3,"Type III, voltage feedback error amp",,,,,,,3240.0,10200.0,115.0,4530.0,3.3e-09,7.5e-11,1.3e-09,10646.5,11868.8,479093.7,1064581.6
-+12V,"Type II, gm error amp",8200.0,3.3e-08,1e-10,588.2,194679.5,69800.0,4990.0,,,,,,,,,,
++5V,"Type II, gm error amp",2400.0,1.5e-08,2.7e-10,4421.0,250030.5,26100.0,4990.0,,,,,,,,,,
++3V3,"Type III, voltage feedback error amp",,,,,,,3740.0,10200.0,115.0,4420.0,3.3e-09,7.5e-11,1.3e-09,10911.5,11868.8,491016.9,1064581.6
++12V,"Type II, gm error amp",3000.0,1e-07,2.7e-10,530.5,197018.1,44200.0,4990.0,,,,,,,,,,

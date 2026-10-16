@@ -264,12 +264,12 @@ deliver.
 
 | rail | Rtop | Rbot | Vref | Vout |
 |---|---|---|---|---|
-| +5V | 26.1 kOhm | 4.99 kOhm | 0.8 V | 4.984 V |
-| +3V3 | 10.2 kOhm | 3.24 kOhm | 0.8 V | 3.319 V |
-| +12V | 69.8 kOhm | 4.99 kOhm | 0.8 V | 11.990 V |
+| +5V | 26.1 kOhm | 4.99 kOhm | 0.800 V (LTC3891) | 4.984 V |
+| +3V3 | 10.2 kOhm | 3.74 kOhm | 0.891 V (TPS54317) | 3.321 V |
+| +12V | 44.2 kOhm | 4.99 kOhm | 1.22 V (TPS43061) | 12.026 V |
 
 The dividers are built from E96 values, so the regulated voltage is not exactly
-the nominal one. The errors, -0.31 percent, +0.56 percent and -0.08 percent,
+the nominal one. The errors, -0.31 percent, +0.64 percent and +0.22 percent,
 are inside the one to two percent tolerances the specification asks for and
 they are systematic, not random, so they are stated rather than hidden. All the
 regulation results are quoted against the voltage the divider actually sets.

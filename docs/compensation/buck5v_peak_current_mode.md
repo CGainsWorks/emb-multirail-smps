@@ -109,26 +109,31 @@ At 50 kHz the plant is well above its dominant pole, so
 |Gvc(50 kHz)| ~ 15.38 * 4.48/50 * (pole pair correction) = 1.33
 ```
 
-and with `gm = 1.2 mS` the mid-band compensator impedance needed is
+and with `gm = 2 mS`, the LTC3891 data sheet's typical transconductance,
+the mid-band compensator impedance needed is
 
 ```
-|Z| = 1 / (Kdiv * gm * |Gvc|) = 1 / (0.1605 * 1.2e-3 * 1.33) = 3.90 kOhm
+|Z| = 1 / (Kdiv * gm * |Gvc|) = 1 / (0.1605 * 2e-3 * 1.33) = 2.34 kOhm
 ```
 
 Between its zero and its pole a Type II network is resistive, so `Z ~ Rc`:
 
 ```
-Rc = 3.9 kOhm        (E24, and the exact answer to three figures)
-Cc = 1 / (2 pi * 4.48e3 * 3.9e3) = 9.1 nF  -> 10 nF (E12)
-Cp = 1 / (2 pi * 250e3 * 3.9e3)  = 163 pF  -> 150 pF (E12)
+Rc = 2.4 kOhm        (E24)
+Cc = 1 / (2 pi * 4.48e3 * 2.4e3) = 14.8 nF -> 15 nF (E12)
+Cp = 1 / (2 pi * 250e3 * 2.4e3)  = 265 pF  -> 270 pF (E12)
 ```
 
 With the snapped values the network's actual corners are
 
 ```
-fz = 1 / (2 pi * 3.9e3 * 10e-9)  = 4.08 kHz
-fp = 1 / (2 pi * 3.9e3 * 150e-12 * 10/(10+0.15)) = 276 kHz
+fz = 1 / (2 pi * 2.4e3 * 15e-9)  = 4.42 kHz
+fp = 1 / (2 pi * 2.4e3 * 270e-12 * 15/(15+0.27)) = 250 kHz
 ```
+
+An earlier version of this design assumed `gm = 1.2 mS`, before a controller
+was chosen, and arrived at 3.9 kOhm, 10 nF and 150 pF. Selecting the LTC3891
+and reading its data sheet is what moved them.
 
 ---
 
@@ -139,17 +144,17 @@ Adding the phase contributions at 50 kHz:
 | term | phase at 50 kHz |
 |---|---|
 | compensator integrator | -90.0 deg |
-| compensator zero, 4.08 kHz | +85.3 deg |
-| compensator pole, 276 kHz | -10.3 deg |
+| compensator zero, 4.42 kHz | +84.9 deg |
+| compensator pole, 250 kHz | -11.3 deg |
 | plant dominant pole, 4.48 kHz | -84.9 deg |
 | plant pole pair, 250 kHz, Q 0.644 | -17.9 deg |
 | plant ESR zero, 5.1 MHz | +0.6 deg |
-| **total** | **-117.2 deg** |
+| **total** | **-118.6 deg** |
 
-Phase margin 62.8 degrees by hand. The numeric model gives **62.9 degrees at
-49.6 kHz**, and the switching simulation gives **64.7 degrees at 49.9 kHz**.
-Gain margin from the model is 12.9 dB, with the -180 degree crossing at
-165 kHz.
+Phase margin 61.4 degrees by hand. The numeric model gives **60.9 degrees at
+50.5 kHz**, and the switching simulation gives **62.8 degrees at 50.8 kHz**.
+Gain margin from the model is 12.5 dB, with the -180 degree crossing at
+159 kHz.
 
 All three exceed the 55 degree and 8 dB targets with room to spare. The extra
 margin is deliberate: nothing in these models includes gate driver delay, dead
@@ -163,11 +168,11 @@ From `smps.design.all_loops()`:
 
 | operating point | fc | PM | GM |
 |---|---|---|---|
-| 24 V, 5.0 A | 49.6 kHz | 62.9 deg | 12.9 dB |
-| 8 V, 5.0 A | 49.6 kHz | 62.9 deg | 12.9 dB |
-| 36 V, 5.0 A | 49.6 kHz | 62.9 deg | 12.9 dB |
-| 24 V, 0.5 A | 49.8 kHz | 59.2 deg | 12.7 dB |
-| 36 V, 0.5 A | 49.8 kHz | 59.2 deg | 12.7 dB |
+| 24 V, 5.0 A | 50.5 kHz | 60.9 deg | 12.5 dB |
+| 8 V, 5.0 A | 50.5 kHz | 60.9 deg | 12.5 dB |
+| 36 V, 5.0 A | 50.5 kHz | 60.9 deg | 12.5 dB |
+| 24 V, 0.5 A | 50.7 kHz | 57.3 deg | 12.3 dB |
+| 36 V, 0.5 A | 50.7 kHz | 57.3 deg | 12.3 dB |
 
 The three full load rows being identical to four figures is not a copy and
 paste error and it is not a bug. With `Se = Sf` the averaged current mode loop
@@ -185,12 +190,13 @@ close to offsetting.
 
 In order of how much:
 
-1. **The error amplifier's transconductance.** `gm = 1.2 mS` is an assumption
-   about a controller that has not been selected. Crossover is directly
-   proportional to it, so a part with 0.6 mS halves the bandwidth and one with
-   2 mS nearly doubles it. `Rc` scales inversely and the fix is one resistor,
-   but the number has to come from a datasheet first. It is on
-   `outputs/VERIFY.csv`.
+1. **The current sense gain.** The LTC3891 senses the 5 mOhm shunt itself,
+   and its effective gain from ITH to inductor current is not a single data
+   sheet figure. The model's x10 stands in for it. Crossover is inversely
+   proportional to it, so this is the number to confirm, from the data sheet
+   curves or the vendor's simulation model, before the board is built. The
+   error amplifier transconductance, which was the first item here before a
+   controller was chosen, now comes from the data sheet.
 2. **Ceramic DC bias derating.** The 46.2 uF assumes a 0.70 retention factor at
    5 V. If the real parts hold 0.55, the plant's dominant pole moves up by a
    third and crossover with it.

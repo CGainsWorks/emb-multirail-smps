@@ -415,7 +415,8 @@ def sim_config(rail_name: str, op: OperatingPoint) -> SimConfig:
         r = rail("+3V3")
         comp = buck3v3_compensator()
         num, den = type_iii_tf(comp.r1_ohm, comp.r3_ohm, comp.rf_ohm,
-                               comp.cf1_f, comp.cf2_f, comp.cf3_f)
+                               comp.cf1_f, comp.cf2_f, comp.cf3_f,
+                               comp.a0_db, comp.gbw_hz)
         v_target = p["v_ref_v"] * (comp.r1_ohm + comp.rbot_ohm) / comp.rbot_ohm
         model = buck3v3_model(op)
         u = np.array([op.v_in_v, 0.0])

@@ -3,10 +3,10 @@
 * Type III compensation network, +3V3 rail
 Vac   out 0 dc 0 ac 1
 R1    out fb  10200
-Rbot  fb  0   3240
+Rbot  fb  0   3740
 R3    out n3  115
 Cf3   n3  fb  1.3e-09
-Rf    comp nf 4530
+Rf    comp nf 4420
 Cf1   nf  fb  3.3e-09
 Cf2   comp fb 7.5e-11
 Eea   comp 0  0 fb 1e6

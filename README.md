@@ -26,11 +26,11 @@ same injection method a Bode analyser uses, and compares.
 
 | rail | control | target fc | hand derived | simulated | error | target PM | hand derived | simulated | error |
 |---|---|---|---|---|---|---|---|---|---|
-| +5V | peak current mode | 50 kHz | 49.6 kHz | 49.9 kHz | +0.5 % | 55 deg | 62.9 deg | 64.7 deg | +1.8 deg |
-| +3V3 | voltage mode | 100 kHz | 99.1 kHz | 95.5 kHz | -3.6 % | 55 deg | 65.3 deg | 69.3 deg | +4.0 deg |
-| +12V | peak current mode | 6 kHz | 5.82 kHz | 6.16 kHz | +5.8 % | 50 deg | 76.3 deg | 78.0 deg | +1.7 deg |
+| +5V | peak current mode | 50 kHz | 50.5 kHz | 50.8 kHz | +0.5 % | 55 deg | 60.9 deg | 62.8 deg | +1.9 deg |
+| +3V3 | voltage mode | 100 kHz | 100.2 kHz | 99.1 kHz | -1.2 % | 55 deg | 63.3 deg | 65.9 deg | +2.6 deg |
+| +12V | peak current mode | 6 kHz | 5.94 kHz | 6.26 kHz | +5.5 % | 50 deg | 76.6 deg | 78.3 deg | +1.7 deg |
 
-Worst crossover disagreement 5.8 percent, worst phase margin disagreement 4.0
+Worst crossover disagreement 5.5 percent, worst phase margin disagreement 2.6
 degrees. The brief this project was built to says not to order boards until the
 simulation matches the hand calculation. It does.
 
@@ -231,9 +231,9 @@ Every number below is produced by `make demo`. **All of them are simulated.**
 
 | rail | line regulation | load regulation | ripple | limit | load step | undershoot | limit |
 |---|---|---|---|---|---|---|---|
-| +5V | < 0.001 % over 8 to 36 V | 0.001 % | 6.4 mVpp | 25 mVpp | 1.5 A | 100 mV | 150 mV |
-| +3V3 | < 0.001 % over the 5 V band | < 0.001 % | 2.7 mVpp | 20 mVpp | 1.0 A | 42 mV | 100 mV |
-| +12V | < 0.001 % over the 5 V band | 0.002 % | 25.6 mVpp | 50 mVpp | 0.2 A | 199 mV | 300 mV |
+| +5V | < 0.001 % over 8 to 36 V | 0.001 % | 6.4 mVpp | 25 mVpp | 1.5 A | 99 mV | 150 mV |
+| +3V3 | < 0.001 % over the 5 V band | < 0.001 % | 2.7 mVpp | 20 mVpp | 1.0 A | 43 mV | 100 mV |
+| +12V | 0.001 % over the 5 V band | 0.001 % | 25.7 mVpp | 50 mVpp | 0.2 A | 198 mV | 300 mV |
 
 The regulation columns are quoted to three decimals of a percent and no further,
 because that is where this solver stops meaning anything: it resolves a settled

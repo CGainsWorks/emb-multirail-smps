@@ -1,28 +1,28 @@
 ref,description,candidate_mpn,must_verify_before_ordering
-U1,"Synchronous buck controller, peak current mode, external compensation, 6-75 V",TI LM5145 (candidate),"Vin range, COMP pin gm, internal ramp/slope-comp behaviour, SS timing"
-"Q1,Q2","N-channel MOSFET, 60 V, 11 mOhm, PowerPAK/SON 3.3x3.3",TI CSD18543Q3A (candidate),"Rds(on) at Vgs=7.5 V and 100 C, Qg, Qoss, thermal pad Rth"
-L1,"Shielded power inductor, 6.8 uH, 9 A saturation, 11 mOhm DCR",Coilcraft XAL6060-682 (candidate),"Isat at 125 C, DCR at 100 C, core loss coefficients"
-Rs1,"Current sense shunt, 5 mOhm, 1 %, 2 W, 4 terminal",Vishay WSL2512 (candidate),"Tolerance, TCR, power rating with the actual copper pour"
-U2,"Current sense amplifier, gain 10",TI INA declared TBD (candidate),"Bandwidth must exceed 5x fsw, input CM range covers the switch node side"
-"C1,C2",MLCC 10 uF 50 V X7R,TBD,DC bias derating at 24 V and 36 V - the 0.45 factor used here is an assumption
-C3,"Aluminium polymer 220 uF 50 V, 15 mOhm ESR",TBD,"ESR over temperature and its spread, ripple current rating. This part damps the input filter, so a low ESR substitute is not a safe swap"
-L4,"Differential mode input inductor, 10 uH, 3 A, 40 mOhm",TBD,"Saturation current at 3 A, self resonant frequency above 30 MHz"
-C12,Film capacitor 2.2 uF 63 V X2 style,TBD,"Self resonance, ESL. Placed at the connector, not next to the FETs"
-C4-C6,MLCC 22 uF 25 V X7R,TBD,DC bias derating at 5 V - the 0.70 factor used here is an assumption
+U1,"Synchronous buck controller, peak current mode, 4 to 60 V",Analog Devices LTC3891EFE#PBF,"Read from the data sheet and now used by the model: VFB 0.800 V, gm 2 mmho typical. Still an assumption: the effective current sense gain (modelled as a x10 amplifier on the 5 mOhm shunt), slope compensation, error amplifier output resistance. Gate drive is INTVCC, about 5.1 V from EXTVCC, where the loss model assumes 7.5 V. ILIM is set to 50 mV, which with 5 mOhm limits at 8.6 to 11.4 A, above the 9 A modelled inductor saturation"
+"Q1,Q2","N-channel MOSFET, 60 V, NexFET SON 3.3 x 3.3",TI CSD18543Q3A,"Data sheet: 8.1 / 9.9 mOhm typ / max at Vgs 10 V and 12.0 / 15.6 mOhm at 4.5 V, Qg 5.6 nC at 4.5 V. The model uses 11 mOhm and 12 nC at 7.5 V, but the gate is driven at about 5.1 V. Rds(on) at 5 V and 100 C, Qoss and the pinout drawing still to be read"
+L1,"Shielded power inductor, 6.8 uH",Coilcraft XAL8080-682MED,"Data sheet: DCR 13.2 / 14.5 mOhm typ / max, Isat 14.0 A at 30 % drop. The model uses 11 mOhm and 9 A. No 6 x 6 mm part meets both figures, so the footprint grew to 8 x 8 mm. Core loss coefficients are still an assumption"
+Rs1,"Current sense shunt, 5 mOhm, 1 %, 1 W, 4 terminal",Vishay WSK25125L000FEA,"Data sheet: 1 W at 70 C, 1 %, TCR 35 ppm/C. Power rating with the actual copper pour still to be checked"
+"C1,C2",MLCC 10 uF 50 V X7R 1210,Murata GRM32ER71H106KA12L,DC bias derating at 24 V and 36 V; the 0.45 factor used here is an assumption
+C3,Hybrid polymer aluminium 220 uF 50 V,Panasonic EEH-ZS1H221P,"Listing: ESR 13 mOhm max at 100 kHz, 3.7 A ripple. The model uses 15 mOhm, and this part damps the input filter, so the lower ESR moves the Middlebrook margin the wrong way: re-run the input filter study with the data sheet ESR before ordering. No 10 x 10 mm 220 uF 50 V hybrid was found"
+L4,"Differential mode input inductor, 10 uH",Coilcraft XAL7050-103MEC,"Data sheet: DCR 25 / 29 mOhm, Isat 7.1 A. The input filter model uses 40 mOhm, which is part of its damping, so this too moves the Middlebrook margin and has to be re-run"
+C12,"MLCC 2.2 uF 100 V X7R 1210, input filter",Murata GRM32ER72A225KA35L,"The model treats this as 2.2 uF with no DC bias derating, as a film part would be. No film part of this value was found in a small SMD case, so it is an MLCC, and its derating at 24 to 36 V has to be read from the Murata curves and added to the EMC model"
+C4-C6,MLCC 22 uF 25 V X7R 1210,Murata GRM32ER71E226KE15L,DC bias derating at 5 V; the 0.70 factor used here is an assumption. Some distributors list the part as not for new designs
 "Rc1,Cc1,Cp1","Type II compensation network, +5V rail",-,"Design choice, not a part property. Values from smps.compensation"
-U3,"Synchronous buck regulator, voltage mode, 6 V in, 3 A, integrated FETs",TBD,"Ramp amplitude Vramp, error amp GBW, Rds(on) of both FETs"
-L2,"Shielded power inductor, 1.5 uH, 6 A saturation, 15 mOhm DCR",Coilcraft XAL4020-152 (candidate),"Isat, DCR, core loss at 1 MHz"
-"C7,C8",MLCC 22 uF 16 V X7R,TBD,DC bias derating at 3.3 V - the 0.75 factor used here is an assumption
-"R1,R3,Rf,Cf1,Cf2,Cf3","Type III compensation network, +3V3 rail",-,"Design choice, not a part property. Values from smps.compensation"
-U4,"Synchronous boost controller, peak current mode",TBD,"Minimum on time, maximum duty clamp, slope compensation"
-"Q3,Q4","N-channel MOSFET, 30 V, 40 mOhm",TBD,"Rds(on) at Vgs=5 V, Qg, Qoss"
-L3,"Shielded power inductor, 22 uH, 2.5 A saturation, 45 mOhm DCR",TBD,"Isat, DCR, core loss at 400 kHz"
-"C9,C10",MLCC 22 uF 25 V X7R,TBD,DC bias derating at 12 V - the 0.55 factor used here is an assumption
-U5,"Low noise LDO, 1.8 V fixed or adjustable, 0.5 A",TBD,"Stability envelope over Cout and load, PSRR at 500 kHz, dropout at 0.5 A"
-C11,MLCC 10 uF 6.3 V X7R,TBD,DC bias derating at 1.8 V
-Rf1,"LDO input filter resistor, 0.33 ohm 1 %, 1 W",-,"Design choice. Power rating at 0.51 A, and the headroom it costs"
-C13,"MLCC 10 uF 16 V X7R, LDO input filter capacitor",TBD,DC bias derating at 3.3 V
-Rpl,"Preload resistor, 180 ohm, holds 10 mA minimum LDO load",-,Design choice. Confirm the chosen LDO actually needs a preload
-FB1,"Common mode choke, 2 x 100 uH, 2 A",TBD,"Leakage inductance, saturation current, self resonance"
-J1,"Input connector, 40 V, 2 A",TBD,"Current rating, creepage"
-J2,"Output connector, 4 rails plus returns",TBD,Current rating
+U3,"Synchronous buck regulator, voltage mode, 3 to 6 V in, 3 A, integrated FETs",TI TPS54317RHFR,"Read from the data sheet and now used by the model: Vref 0.891 V, ramp 1 Vpp, error amplifier 110 dB and 5 MHz. Data sheet FET resistance is 59 mOhm typical at 6 V in, where the loss model still uses 30 and 20 mOhm, so the +3V3 efficiency and U3 temperature are optimistic until it is re-run. The data sheet dates from 2009: confirm the part is still recommended for new designs, and the RHF land pattern against TI's drawing"
+L2,"Shielded power inductor, 1.5 uH",Coilcraft XGL4020-152MEC,"Data sheet: DCR 13.0 / 14.3 mOhm, Isat 5.3 A at 20 % and 7.5 A at 30 % drop. The model uses 15 mOhm and 6 A. Core loss at 1 MHz still an assumption"
+"C7,C8",MLCC 22 uF 16 V X7R 1206,Murata GRM31CZ71C226ME15L,DC bias derating at 3.3 V; the 0.75 factor used here is an assumption
+"R1,R3,Rf2,Cf1,Cf2,Cf3","Type III compensation network, +3V3 rail",-,"Design choice, not a part property. Values from smps.compensation"
+U4,"Synchronous boost controller, peak current mode",TI TPS43061RTER,"Read from the data sheet and now used by the model: VREF 1.22 V, Gea 1.1 mS, Rea 10 MOhm. Still an assumption: the effective current sense gain (modelled as x3 on the 50 mOhm shunt) and slope compensation. The current limit, 61 to 73 mV over 50 mOhm, is 1.2 to 1.5 A against a 1.13 A modelled peak: thin"
+"Q3,Q4","N-channel MOSFET, 30 V, SOT-23",Alpha and Omega AO3400A,"Data sheet: 19 / 32 mOhm typ / max at Vgs 4.5 V, Qg 6 nC. The model uses 40 mOhm and 2.5 nC at 5 V; the gate charge is more than double"
+L3,"Shielded power inductor, 22 uH",Coilcraft XGL6060-223MEC,"Data sheet: DCR 42.6 / 46.9 mOhm, Isat 2.5 A at 10 % and 3.9 A at 20 % drop. The model uses 45 mOhm and 2.5 A. Core loss at 400 kHz still an assumption"
+"C9,C10",MLCC 22 uF 25 V X7R 1210,Murata GRM32ER71E226KE15L,DC bias derating at 12 V; the 0.55 factor used here is an assumption
+U5,"Low noise LDO, fixed 1.8 V, 0.5 A",TI LP5912-1.8DRVR,"The LDO loop model is behavioural and was not refitted to this part. Stability over Cout and load, PSRR at 500 kHz and dropout at 0.5 A to be read from the data sheet"
+C11,MLCC 10 uF 6.3 V X7R 0805,Murata GRM21BR70J106KE76L,DC bias derating at 1.8 V
+Rf1,"LDO input filter resistor, 0.33 ohm 1 %, 0.25 W",Yageo RL0805FR-7W0R33L,Design choice. 86 mW at 0.51 A against a 0.25 W rating
+C13,"MLCC 10 uF 16 V X7R 0805, LDO input filter capacitor",Samsung CL21B106KOQNNNE,DC bias derating at 3.3 V
+Rpl1,"Preload resistor, 180 ohm, holds 10 mA minimum LDO load",Yageo RC0603FR-07180RL,Design choice. Confirm the LP5912 actually needs a preload
+D1,"TVS, 36 V stand off, SOD-123FL",Littelfuse SMF36A,"Stand off equals the 36 V maximum input and breakdown starts at 40 V, so there is no margin at the top of the input range"
+F1,"Fuse, 3 A slow blow, 63 V DC, 1206",Eaton Bussmann CC12H3A-TR,DC rating from distributor listings; the Eaton data sheet was not reached. Check I2t against the input capacitor inrush
+J1,"Input terminal block, 2 way, 5.08 mm",Phoenix Contact 1711725,"Current rating, creepage"
+J2,"Output terminal block, 10 way, 5.08 mm",Phoenix Contact 1715802,Current rating

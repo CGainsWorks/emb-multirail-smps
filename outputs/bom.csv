@@ -1,28 +1,56 @@
-ref,qty,description,value,package,candidate_mpn,mpn_status
-U1,1,"Synchronous buck controller, peak current mode, external compensation, 6-75 V",-,HTSSOP-20,TI LM5145 (candidate),"candidate, unverified"
-"Q1,Q2",2,"N-channel MOSFET, 60 V, 11 mOhm, PowerPAK/SON 3.3x3.3",60V 11m,SON-3x3,TI CSD18543Q3A (candidate),"candidate, unverified"
-L1,1,"Shielded power inductor, 6.8 uH, 9 A saturation, 11 mOhm DCR",6.8uH,XAL60xx,Coilcraft XAL6060-682 (candidate),"candidate, unverified"
-Rs1,1,"Current sense shunt, 5 mOhm, 1 %, 2 W, 4 terminal",5m,2512-4T,Vishay WSL2512 (candidate),"candidate, unverified"
-U2,1,"Current sense amplifier, gain 10",x10,SOT-23-5,TI INA declared TBD (candidate),"candidate, unverified"
-"C1,C2",2,MLCC 10 uF 50 V X7R,10uF/50V,1210,TBD,not selected
-C3,1,"Aluminium polymer 220 uF 50 V, 15 mOhm ESR",220uF/50V,SMD 10x10,TBD,not selected
-L4,1,"Differential mode input inductor, 10 uH, 3 A, 40 mOhm",10uH,SMD 7x7,TBD,not selected
-C12,1,Film capacitor 2.2 uF 63 V X2 style,2.2uF/63V,SMD,TBD,not selected
-C4-C6,3,MLCC 22 uF 25 V X7R,22uF/25V,1210,TBD,not selected
-"Rc1,Cc1,Cp1",3,"Type II compensation network, +5V rail",see docs,0402,-,design value
-U3,1,"Synchronous buck regulator, voltage mode, 6 V in, 3 A, integrated FETs",-,VQFN-16,TBD,not selected
-L2,1,"Shielded power inductor, 1.5 uH, 6 A saturation, 15 mOhm DCR",1.5uH,XAL40xx,Coilcraft XAL4020-152 (candidate),"candidate, unverified"
-"C7,C8",2,MLCC 22 uF 16 V X7R,22uF/16V,1206,TBD,not selected
-"R1,R3,Rf,Cf1,Cf2,Cf3",6,"Type III compensation network, +3V3 rail",see docs,0402,-,design value
-U4,1,"Synchronous boost controller, peak current mode",-,VSSOP-10,TBD,not selected
-"Q3,Q4",2,"N-channel MOSFET, 30 V, 40 mOhm",30V 40m,SOT-23,TBD,not selected
-L3,1,"Shielded power inductor, 22 uH, 2.5 A saturation, 45 mOhm DCR",22uH,XAL50xx,TBD,not selected
-"C9,C10",2,MLCC 22 uF 25 V X7R,22uF/25V,1210,TBD,not selected
-U5,1,"Low noise LDO, 1.8 V fixed or adjustable, 0.5 A",-,WSON-6,TBD,not selected
-C11,1,MLCC 10 uF 6.3 V X7R,10uF/6.3V,0805,TBD,not selected
-Rf1,1,"LDO input filter resistor, 0.33 ohm 1 %, 1 W",0R33,0805,-,design value
-C13,1,"MLCC 10 uF 16 V X7R, LDO input filter capacitor",10uF/16V,0805,TBD,not selected
-Rpl,1,"Preload resistor, 180 ohm, holds 10 mA minimum LDO load",180R,0603,-,design value
-FB1,1,"Common mode choke, 2 x 100 uH, 2 A",2x100uH,SMD,TBD,not selected
-J1,1,"Input connector, 40 V, 2 A",-,-,TBD,not selected
-J2,1,"Output connector, 4 rails plus returns",-,-,TBD,not selected
+refs,qty,value,description,footprint,manufacturer,mpn,basis,status
+J1,1,VIN 8-36V,"Input terminal block, 2 way, 5.08 mm",TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-3-2-5.08_1x02_P5.08mm_Horizontal,Phoenix Contact,1711725,choice,"selected, data sheet check pending"
+F1,1,3A,"Fuse, 3 A slow blow, 63 V DC, 1206",Fuse:Fuse_1206_3216Metric,Eaton Bussmann,CC12H3A-TR,choice,"selected, data sheet check pending"
+D1,1,SMF36A,"TVS, 36 V stand off, unidirectional, SOD-123FL. Clamps input transients and conducts on reverse polarity until F1 opens",Diode_SMD:D_SOD-123F,Littelfuse,SMF36A,choice,"selected, data sheet check pending"
+C12,1,2.2uF,"Input filter shunt capacitor, connector side, 2.2 uF 100 V X7R",Capacitor_SMD:C_1210_3225Metric,Murata,GRM32ER72A225KA35L,model,"selected, data sheet check pending"
+L4,1,10uH,"Differential mode input filter inductor, 10 uH",Inductor_SMD:L_Coilcraft_XAL7050-XXX,Coilcraft,XAL7050-103MEC,model,"selected, data sheet check pending"
+C3,1,220uF,"Hybrid polymer aluminium 220 uF 50 V, 10 x 16.5 mm, input filter damping",Capacitor_SMD:CP_Elec_10x10.5,Panasonic,EEH-ZS1H221P,model,"selected, data sheet check pending"
+C1 C2,2,10uF,"+5V buck input capacitor, 10 uF 50 V X7R 1210",Capacitor_SMD:C_1210_3225Metric,Murata,GRM32ER71H106KA12L,model,"selected, data sheet check pending"
+U1,1,LTC3891EFE#PBF,"60 V synchronous buck controller, peak current mode, 0.8 V reference",Package_SO:HTSSOP-20-1EP_4.4x6.5mm_P0.65mm_EP2.74x3.86mm,Analog Devices,LTC3891EFE#PBF,datasheet,"selected, data sheet check pending"
+Q1 Q2,2,CSD18543Q3A,"60 V N-channel MOSFET, high side",Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET,Texas Instruments,CSD18543Q3A,choice,"selected, data sheet check pending"
+D2,1,PMEG6010CEH,"Bootstrap diode, 60 V Schottky. The data sheet calls for one between INTVCC and BOOST",Diode_SMD:D_SOD-123F,Nexperia,PMEG6010CEH,datasheet,"selected, data sheet check pending"
+C14 C26,2,100nF,"Bootstrap capacitor, 0.1 uF 50 V",Capacitor_SMD:C_0603_1608Metric,Murata,GRM188R71H104KA93D,datasheet,"selected, data sheet check pending"
+C15,1,4.7uF,INTVCC decoupling. Data sheet minimum 2.2 uF,Capacitor_SMD:C_0805_2012Metric,Murata,GRM21BR71C475KA73L,datasheet,"selected, data sheet check pending"
+C16 C21 C24 Cc2,4,100nF,VIN pin bypass to SGND,Capacitor_SMD:C_0402_1005Metric,Murata,GRM155R71H104KE14D,datasheet,"selected, data sheet check pending"
+C17 C20 C27,3,47nF,Soft start. tSS = CSS * 0.8 V / 10 uA = 3.8 ms,Capacitor_SMD:C_0402_1005Metric,Murata,GRM155R71C473KA01D,datasheet,"selected, data sheet check pending"
+R10,1,71.5k,"Frequency set, 500 kHz",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0771K5L,datasheet,"selected, data sheet check pending"
+R11,1,1M,RUN divider top. Starts at about 7 V rising,Resistor_SMD:R_0603_1608Metric,Yageo,RC0603FR-071ML,datasheet,"selected, data sheet check pending"
+R12,1,210k,"RUN divider bottom. 1.21 V threshold, 6.3 V at 36 V in",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-07210KL,datasheet,"selected, data sheet check pending"
+R13 R21 R40,3,100k,PGOOD pull-up,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-07100KL,choice,"selected, data sheet check pending"
+L1,1,6.8uH,"+5V buck inductor, 6.8 uH",Inductor_SMD:L_Coilcraft_XAL8080-XXX,Coilcraft,XAL8080-682MED,model,"selected, data sheet check pending"
+Rs1,1,5m,"Current sense shunt, 5 mOhm 1 %, four terminal 2512",Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T1.19mm,Vishay,WSK25125L000FEA,model,"selected, data sheet check pending"
+C4 C5 C6 C9 C10,5,22uF,"+5V output capacitor, 22 uF 25 V X7R 1210",Capacitor_SMD:C_1210_3225Metric,Murata,GRM32ER71E226KE15L,model,"selected, data sheet check pending"
+R14 R22 R32,3,0,Loop injection link. Fitted 0 ohm; replace with 20 ohm for a Bode measurement,Resistor_SMD:R_0603_1608Metric,Yageo,RC0603JR-070RL,choice,"selected, data sheet check pending"
+Rt1,1,26.1k,+5V divider top,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0726K1L,model,"selected, data sheet check pending"
+Rb1 Rb3,2,4.99k,+5V divider bottom,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-074K99L,model,"selected, data sheet check pending"
+Rc1,1,2.4k,"+5V Type II, Rc",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-072K4L,model,"selected, data sheet check pending"
+Cc1,1,15nF,"+5V Type II, Cc",Capacitor_SMD:C_0402_1005Metric,Murata,GRM155R71H153KA12D,model,"selected, data sheet check pending"
+Cp1 Cp2,2,270pF,"+5V Type II, Cp",Capacitor_SMD:C_0402_1005Metric,KEMET,C0402C271J5GACTU,model,"selected, data sheet check pending"
+U3,1,TPS54317RHFR,"3 to 6 V input, 3 A synchronous buck, voltage mode, integrated FETs, 0.891 V reference",Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm,Texas Instruments,TPS54317RHFR,datasheet,"selected, data sheet check pending"
+C18 C19 C23 C13,4,10uF,"+3V3 buck input capacitor, 10 uF 16 V X7R 0805",Capacitor_SMD:C_0805_2012Metric,Samsung,CL21B106KOQNNNE,model,"selected, data sheet check pending"
+C22,1,22nF,Slow start. t = C * 0.7 V / 5 uA = 3.1 ms,Capacitor_SMD:C_0402_1005Metric,Murata,GRM155R71H223KA12D,datasheet,"selected, data sheet check pending"
+R20,1,46.4k,"Frequency set, 1 MHz. f(MHz) = 51k / (R + 4.7k) gives 46.3k",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0746K4L,datasheet,"selected, data sheet check pending"
+L2,1,1.5uH,"+3V3 buck inductor, 1.5 uH",Inductor_SMD:L_Coilcraft_XAL4020-XXX,Coilcraft,XGL4020-152MEC,model,"selected, data sheet check pending"
+C7 C8,2,22uF,"+3V3 output capacitor, 22 uF 16 V X7R 1206",Capacitor_SMD:C_1206_3216Metric,Murata,GRM31CZ71C226ME15L,model,"selected, data sheet check pending"
+R1,1,10.2k,"+3V3 Type III R1, also the divider top",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0710K2L,model,"selected, data sheet check pending"
+Rb2,1,3.74k,+3V3 divider bottom,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-073K74L,model,"selected, data sheet check pending"
+R3,1,115,+3V3 Type III R3,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-07115RL,model,"selected, data sheet check pending"
+Cf3,1,1.3nF,+3V3 Type III Cf3,Capacitor_SMD:C_0402_1005Metric,KEMET,C0402C132J5GACTU,model,"selected, data sheet check pending"
+Rf2,1,4.42k,+3V3 Type III Rf,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-074K42L,model,"selected, data sheet check pending"
+Cf1,1,3.3nF,+3V3 Type III Cf1,Capacitor_SMD:C_0402_1005Metric,Murata,GRM1555C1H332JE01D,model,"selected, data sheet check pending"
+Cf2,1,75pF,+3V3 Type III Cf2,Capacitor_SMD:C_0402_1005Metric,KEMET,C0402C750J5GACTU,model,"selected, data sheet check pending"
+U4,1,TPS43061RTER,"Synchronous boost controller, peak current mode, 5.5 V gate drive, integrated bootstrap diode, 1.22 V reference",Package_DFN_QFN:Texas_RTE_WQFN-16-1EP_3x3mm_P0.5mm_EP1.2x0.8mm,Texas Instruments,TPS43061RTER,datasheet,"selected, data sheet check pending"
+R33 R34,2,0,"High side gate resistor. Fitted 0 ohm, there to slow the edge if the switch node rings on the real board",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402JR-070RL,choice,"selected, data sheet check pending"
+C25,1,1uF,VCC decoupling. Data sheet range 0.47 to 10 uF,Capacitor_SMD:C_0603_1608Metric,Murata,GRM188R71C105KA12D,datasheet,"selected, data sheet check pending"
+R30,1,147k,"Frequency set, 400 kHz",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-07147KL,datasheet,"selected, data sheet check pending"
+R31,1,10k,"PGOOD pull-up to VCC, 10k as the data sheet recommends",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0710KL,datasheet,"selected, data sheet check pending"
+Rs2,1,50m,"Current sense shunt, 50 mOhm 1 %, in series with the inductor",Resistor_SMD:R_0805_2012Metric,Vishay,WSLP0805R0500FEA,model,"selected, data sheet check pending"
+L3,1,22uH,"+12V boost inductor, 22 uH",Inductor_SMD:L_Coilcraft_XAL6060-XXX,Coilcraft,XGL6060-223MEC,model,"selected, data sheet check pending"
+Q3 Q4,2,AO3400A,"30 V N-channel MOSFET, boost low side",Package_TO_SOT_SMD:SOT-23,Alpha and Omega,AO3400A,choice,"selected, data sheet check pending"
+Rt2,1,44.2k,+12V divider top,Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-0744K2L,model,"selected, data sheet check pending"
+Rc2,1,3k,"+12V Type II, Rc",Resistor_SMD:R_0402_1005Metric,Yageo,RC0402FR-073KL,model,"selected, data sheet check pending"
+Rf1,1,330m,"LDO input filter resistor, 0.33 ohm 1 %",Resistor_SMD:R_0805_2012Metric,Yageo,RL0805FR-7W0R33L,model,"selected, data sheet check pending"
+U5,1,LP5912-1.8DRVR,"500 mA low noise LDO, fixed 1.8 V",Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm,Texas Instruments,LP5912-1.8DRVR,datasheet,"selected, data sheet check pending"
+C11,1,10uF,"LDO output capacitor, 10 uF 6.3 V X7R 0805",Capacitor_SMD:C_0805_2012Metric,Murata,GRM21BR70J106KE76L,model,"selected, data sheet check pending"
+Rpl1,1,180,"Preload, holds 10 mA minimum load",Resistor_SMD:R_0603_1608Metric,Yageo,RC0603FR-07180RL,model,"selected, data sheet check pending"
+J2,1,OUTPUTS,"Output terminal block, 10 way, 5.08 mm","TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-10-5.08_1x10_P5.08mm_Horizontal",Phoenix Contact,1715802,choice,"selected, data sheet check pending"

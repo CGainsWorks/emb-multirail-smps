@@ -95,15 +95,30 @@ def type_ii_tf(rc: float, cc: float, cp: float, gm: float, ro: float,
 
 
 def type_iii_tf(r1: float, r3: float, rf: float, cf1: float, cf2: float,
-                cf3: float):
+                cf3: float, a0_db: float = float("inf"),
+                gbw_hz: float = float("inf")):
     """``Gc(s) = Zf/Zi`` as numerator and denominator coefficients.
 
         Zf = (1 + s Rf Cf1) / (s(Cf1+Cf2) + s^2 Rf Cf1 Cf2)
         Zi = R1 (1 + s R3 Cf3) / (1 + s (R1+R3) Cf3)
+
+    With a finite amplifier, ``A(s) = a0 wp / (s + wp)`` and
+    ``wp = 2 pi GBW / a0``, the inverting stage becomes ``N A / (D A + D + N)``
+    for ``Zf/Zi = N/D``. That is the same correction
+    :meth:`smps.compensation.TypeIII.response` applies, so the switching
+    simulator and the hand derivation carry the same amplifier. Leaving both
+    arguments at infinity gives the ideal amplifier.
     """
     num = np.convolve([rf * cf1, 1.0], [(r1 + r3) * cf3, 1.0])
     den = r1 * np.convolve([rf * cf1 * cf2, cf1 + cf2, 0.0], [r3 * cf3, 1.0])
-    return num, den
+    if not (np.isfinite(a0_db) and np.isfinite(gbw_hz)):
+        return num, den
+    a0 = 10 ** (a0_db / 20.0)
+    wp = 2 * np.pi * gbw_hz / a0
+    num_a = num * a0 * wp
+    den_a = np.polyadd(den * a0 * wp,
+                       np.polymul(np.polyadd(den, num), [1.0, wp]))
+    return num_a, den_a
 
 
 def integrator_tf(f_unity_hz: float):

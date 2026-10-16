@@ -15,7 +15,7 @@ from . import components as C
 from . import design as D
 from . import results as R
 from .emc import InputFilter
-from .netlist import netlist_stats
+from .netlist import netlist_stats, write_lf
 from .spec import RAILS, SYSTEM, rail, useful_output_power_w
 from .thermal import BOARD, RTH_JB_KW, T_J_MAX_C
 
@@ -329,12 +329,12 @@ In rough order of how much:
 def write_spec(docs_dir: Path) -> Path:
     docs_dir.mkdir(parents=True, exist_ok=True)
     p = docs_dir / "spec.md"
-    p.write_text(spec_markdown(), encoding="utf-8")
+    write_lf(p, spec_markdown())
     return p
 
 
 def write_validation(docs_dir: Path, data: dict) -> Path:
     docs_dir.mkdir(parents=True, exist_ok=True)
     p = docs_dir / "validation_report.md"
-    p.write_text(validation_markdown(data), encoding="utf-8")
+    write_lf(p, validation_markdown(data))
     return p

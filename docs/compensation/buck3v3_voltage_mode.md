@@ -91,22 +91,28 @@ fp3 = 1 / (2 pi R3 Cf3)
 
 ```
 R1   = 10.2 kOhm      chosen, sets the divider current at about 0.25 mA
-Rbot = R1 * 0.8 / (3.3 - 0.8) = 3.264 kOhm -> 3.24 kOhm (E96)
-Vout = 0.8 * (10.2 + 3.24) / 3.24 = 3.3185 V     (+0.56 % from nominal)
+Rbot = R1 * 0.891 / (3.3 - 0.891) = 3.773 kOhm -> 3.74 kOhm (E96)
+Vout = 0.891 * (10.2 + 3.74) / 3.74 = 3.3210 V   (+0.64 % from nominal)
 
 R3   = R1 / (fp3/fz2 - 1) = 10.2k / 89 = 115 Ohm (E96)
 Cf3  = 1 / (2 pi * 11.1e3 * (10.2k + 115)) = 1.39 nF -> 1.3 nF (E24)
-Rf   = 4.53 kOhm (E96), solved for the crossover
-Cf1  = 1 / (2 pi * 11.1e3 * 4.53e3) = 3.17 nF -> 3.3 nF (E24)
+Rf   = 4.42 kOhm (E96), solved for the crossover
+Cf1  = 1 / (2 pi * 11.1e3 * 4.42e3) = 3.24 nF -> 3.3 nF (E24)
 Cf2  = Cf1 / (2 pi fp2 Rf Cf1 - 1)  = 76 pF   -> 75 pF (E24)
 ```
 
 With those snapped values the network actually sits at
 
 ```
-fz1 = 10.65 kHz     fz2 = 11.87 kHz
-fp2 = 479 kHz       fp3 = 1.065 MHz
+fz1 = 10.91 kHz     fz2 = 11.87 kHz
+fp2 = 491 kHz       fp3 = 1.065 MHz
 ```
+
+The 0.891 V reference is the TPS54317's. Before a regulator was chosen this
+rail assumed 0.8 V, which gave 3.24 kOhm and 4.53 kOhm. With an op amp error
+amplifier the bottom resistor sits on a virtual earth, so changing it moves
+the set point and nothing else; `Rf` moved because the amplifier itself
+changed (below).
 
 ---
 
@@ -117,36 +123,39 @@ Contributions at 100 kHz:
 | term | phase at 100 kHz |
 |---|---|
 | compensator integrator | -90.0 deg |
-| zero at 10.65 kHz | +83.9 deg |
+| zero at 10.91 kHz | +83.8 deg |
 | zero at 11.87 kHz | +83.2 deg |
-| pole at 479 kHz | -11.8 deg |
+| pole at 491 kHz | -11.5 deg |
 | pole at 1.065 MHz | -5.4 deg |
 | plant LC double pole, 22.2 kHz, Q ~ 5 | -177.4 deg |
 | plant ESR zero, 4.8 MHz | +1.2 deg |
-| **total** | **-116.2 deg** |
+| **total** | **-116.1 deg** |
 
-Phase margin 63.8 degrees by hand against the numeric model's **65.3 degrees at
-99.1 kHz**. The switching simulation gives **69.3 degrees at 95.5 kHz**.
+Phase margin 63.9 degrees by hand, with an ideal amplifier, against the
+numeric model's **63.3 degrees at 100.2 kHz**. The switching simulation gives
+**65.9 degrees at 99.1 kHz**.
 
-The hand sum is the pessimistic one of the three, by about 1.5 degrees, and the
-reason is in the row that dominates it. The closed form treats the LC pair as
-undamped apart from the load, so at 100 kHz it has already surrendered 177.4 of
-its 180 degrees. The numeric model carries the inductor DCR and both switch
-resistances as well, which damps the resonance and leaves a little phase still
-to give up at crossover. That is the correction the parasitics buy, and it is
-why the numeric model is the one the compensator is designed against.
+Two corrections pull in opposite directions. The closed form treats the LC
+pair as undamped apart from the load, so at 100 kHz it has already surrendered
+177.4 of its 180 degrees; the numeric model carries the inductor DCR and both
+switch resistances, which damp the resonance and give back about 2.8 degrees.
+The numeric model also carries the error amplifier's finite gain bandwidth,
+which the hand sum leaves out, and that costs 3.4 degrees. Net, the numeric
+model sits 0.6 degrees below the hand sum, and it is the one the compensator is
+designed against.
 
-Gain margin from the model is 16.9 dB, with the -180 degree crossing at
-456 kHz. The switching measurement cannot confirm that one: sampling once per
-switching cycle puts a Nyquist limit at 500 kHz and the sweep stops short of
-it, so the simulated trace never reaches -180 degrees inside the measurable
-band. A bench analyser triggered off the switching clock has the same limit for
-the same reason, and the honest statement is that the phase stays above -180
-degrees everywhere the measurement can see.
+The amplifier figures are the TPS54317 data sheet's typical values, 110 dB of
+open loop gain and 5 MHz unity gain bandwidth. An earlier assumption of 12 MHz
+cost only 1.4 degrees. The switching simulator carries the same finite
+amplifier as the hand model; when it carried an ideal one, the 5 MHz part
+opened a 6 degree gap between the two that was the simulator's omission, not
+the design's.
 
-The finite gain bandwidth of the error amplifier, taken as 12 MHz with 80 dB of
-open loop gain, is included in the analytic response. It costs about 1.4
-degrees at crossover.
+Gain margin from the model is 11.7 dB, with the -180 degree crossing at
+326 kHz. The switching measurement sees that crossing too, at 12.8 dB, because
+it now falls inside the 500 kHz Nyquist limit that sampling once per switching
+cycle imposes. A bench analyser triggered off the switching clock has the same
+limit for the same reason.
 
 ---
 
@@ -154,10 +163,10 @@ degrees at crossover.
 
 | operating point | fc | PM | GM |
 |---|---|---|---|
-| 5.00 V, 3.0 A | 99.1 kHz | 65.3 deg | 16.9 dB |
-| 4.95 V, 3.0 A | 98.3 kHz | 65.4 deg | 17.0 dB |
-| 5.05 V, 3.0 A | 100.0 kHz | 65.2 deg | 16.8 dB |
-| 5.00 V, 0.3 A | 99.8 kHz | 62.8 deg | 16.7 dB |
+| 5.00 V, 3.0 A | 100.2 kHz | 63.3 deg | 11.7 dB |
+| 4.95 V, 3.0 A | 99.3 kHz | 63.4 deg | 11.8 dB |
+| 5.05 V, 3.0 A | 101.2 kHz | 63.2 deg | 11.6 dB |
+| 5.00 V, 0.3 A | 100.9 kHz | 60.8 deg | 11.5 dB |
 
 A one percent input band moves the crossover by one percent, which is what a
 voltage mode modulator with gain `Vin/Vramp` should do and is the reason this
@@ -165,15 +174,17 @@ scheme is only acceptable on a rail with a regulated input. Put the same loop
 on 8 to 36 V and the crossover would move by a factor of 4.5.
 
 Light load raises the LC Q, which is why the phase margin is worst at 0.3 A
-rather than at full load. It is still 7.8 degrees above target.
+rather than at full load. It is still 5.8 degrees above target.
 
 ---
 
 ## 5. What would change this
 
-1. **The ramp amplitude.** `Vramp = 1.0 Vpp` is an assumption about an
-   unselected part, and crossover is inversely proportional to it. On
-   `outputs/VERIFY.csv`.
+1. **The power stage resistance.** The TPS54317's ramp, 1.0 Vpp, is now a
+   data sheet figure and matches what this design assumed. Its FETs are not:
+   59 mOhm typical at 6 V against the 30 and 20 mOhm modelled. More
+   resistance damps the LC pair, which helps the margin a little and costs
+   efficiency, and it is on `outputs/VERIFY.csv` to be re-run.
 2. **Ceramic derating at 3.3 V.** The 0.75 retention factor sets the LC
    resonance. If the real parts hold 0.6, `f0` moves to 25 kHz and both
    compensator zeros are then placed too low.

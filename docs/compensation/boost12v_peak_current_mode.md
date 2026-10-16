@@ -82,13 +82,15 @@ pole pair     = 200 kHz, Q = 0.659
 
 ## 3. The compensator
 
-Type II around a transconductance amplifier, `gm = 0.6 mS`.
+Type II around a transconductance amplifier. The selected controller is the
+TPS43061, and its data sheet gives `VREF = 1.22 V`, `Gea = 1.1 mS` and an
+output resistance of 10 MOhm, all typical.
 
 ```
-Vref = 0.8 V,  Rbot = 4.99 kOhm
-Rtop = 4.99k * (12 - 0.8) / 0.8 = 69.9 kOhm -> 69.8 kOhm (E96)
-Kdiv = 4.99 / (69.8 + 4.99) = 0.066720
-Vout = 0.8 / 0.066720 = 11.990 V        (-0.08 % from nominal)
+Vref = 1.22 V,  Rbot = 4.99 kOhm
+Rtop = 4.99k * (12 - 1.22) / 1.22 = 44.1 kOhm -> 44.2 kOhm (E96)
+Kdiv = 4.99 / (44.2 + 4.99) = 0.10144
+Vout = 1.22 / 0.10144 = 12.026 V        (+0.22 % from nominal)
 ```
 
 Placement:
@@ -100,12 +102,18 @@ Placement:
 * **Gain solved for** to put crossover at 6 kHz.
 
 ```
-Rc = 8.2 kOhm (E24)
-Cc = 1 / (2 pi * 563 * 8.2e3) = 34.4 nF -> 33 nF (E12)
-Cp = 1 / (2 pi * 200e3 * 8.2e3) = 97 pF -> 100 pF (E12)
+Rc = 3.0 kOhm (E24)
+Cc = 1 / (2 pi * 563 * 3.0e3) = 94 nF -> 100 nF (E12)
+Cp = 1 / (2 pi * 200e3 * 3.0e3) = 265 pF -> 270 pF (E12)
 
-achieved:  fz = 588 Hz,  fp = 195 kHz
+achieved:  fz = 531 Hz,  fp = 197 kHz
 ```
+
+Before a controller was chosen this rail assumed a 0.8 V reference and
+0.6 mS, which gave 69.8 kOhm, 8.2 kOhm, 33 nF and 100 pF. The higher
+reference raises the divider gain by half and the higher transconductance
+nearly doubles the amplifier gain, so `Rc` came down to keep the same
+crossover.
 
 ---
 
@@ -116,17 +124,17 @@ At 6 kHz:
 | term | phase at 6 kHz |
 |---|---|
 | compensator integrator | -90.0 deg |
-| compensator zero, 588 Hz | +84.4 deg |
-| compensator pole, 195 kHz | -1.8 deg |
+| compensator zero, 531 Hz | +84.9 deg |
+| compensator pole, 197 kHz | -1.7 deg |
 | plant dominant pole, 563 Hz | -84.6 deg |
 | **right half plane zero, 37.7 kHz** | **-9.0 deg** |
 | plant pole pair, 200 kHz, Q 0.659 | -2.6 deg |
-| **total** | **-103.7 deg** |
+| **total** | **-103.0 deg** |
 
-Phase margin 76.3 degrees, against the numeric model's **76.3 degrees at
-5.82 kHz** and the switching simulation's **78.0 degrees at 6.16 kHz**. Gain
-margin 14.5 dB with the -180 degree crossing at 49.4 kHz, which the switching
-measurement also sees, at 15.7 dB.
+Phase margin 77.0 degrees, against the numeric model's **76.6 degrees at
+5.94 kHz** and the switching simulation's **78.3 degrees at 6.26 kHz**. Gain
+margin 14.3 dB with the -180 degree crossing at 49.6 kHz, which the switching
+measurement also sees, at 15.5 dB.
 
 The right half plane zero costs only 9 degrees at crossover, which is the
 point of putting crossover at `f_rhpz/6.3`. Move crossover to 15 kHz and the
@@ -137,8 +145,8 @@ The very comfortable 76 degrees is not free bandwidth going spare. It is what a
 single pole loop crossing well below every other feature looks like, and the
 alternative, pushing crossover up to spend the margin, walks straight into the
 zero. The transient performance that costs is visible in
-`test-results/transient/12v_load_step.png`: 199 mV of undershoot on a 0.2 A
-step and 226 us to settle, against limits of 300 mV and 1 ms. Those limits were
+`test-results/transient/12v_load_step.png`: 198 mV of undershoot on a 0.2 A
+step and 241 us to settle, against limits of 300 mV and 1 ms. Those limits were
 set knowing this rail would be slow.
 
 ---
@@ -147,10 +155,10 @@ set knowing this rail would be slow.
 
 | operating point | fc | PM | GM |
 |---|---|---|---|
-| 5.00 V, 0.40 A | 5.82 kHz | 76.3 deg | 14.5 dB |
-| 4.95 V, 0.40 A | 5.76 kHz | 76.2 deg | 14.4 dB |
-| 5.05 V, 0.40 A | 5.88 kHz | 76.4 deg | 14.5 dB |
-| 5.00 V, 0.10 A | 5.91 kHz | 80.0 deg | 23.0 dB |
+| 5.00 V, 0.40 A | 5.94 kHz | 76.6 deg | 14.3 dB |
+| 4.95 V, 0.40 A | 5.87 kHz | 76.5 deg | 14.2 dB |
+| 5.05 V, 0.40 A | 6.00 kHz | 76.7 deg | 14.4 dB |
+| 5.00 V, 0.10 A | 6.02 kHz | 80.5 deg | 22.9 dB |
 
 Light load improves everything, because the right half plane zero moves up with
 `1/R` while the crossover barely moves.
@@ -159,10 +167,11 @@ Light load improves everything, because the right half plane zero moves up with
 
 ## 6. What would change this
 
-1. **A controller that fixes its own slope compensation internally.** At
-   `D = 0.58` the value of `Se` is not a refinement, and a part that sets it for
-   a different duty range would need the inductor or the switching frequency
-   reconsidered.
+1. **The controller's own slope compensation.** The TPS43061 sets it
+   internally. At `D = 0.58` the value of `Se` is not a refinement; if the
+   data sheet's internal ramp differs from what this model assumes, the
+   inductor or the switching frequency has to be reconsidered. The current
+   sense gain, modelled as x3 on the 50 mOhm shunt, has the same status.
 2. **The minimum on time and the maximum duty clamp.** At 400 kHz the off time
    is 1.04 us and there is plenty of room, but a controller with a long leading
    edge blanking window would eat into the sensed current waveform.
