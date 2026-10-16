@@ -35,6 +35,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "simulation"))
 
+from smps import components as C  # noqa: E402
 from smps import design as D  # noqa: E402
 from smps.emc import InputFilter  # noqa: E402
 from smps.spec import rail  # noqa: E402
@@ -167,7 +168,7 @@ def compare_transient(stdout: str) -> list[str]:
 
     r = rail("+3V3")
     c = D.buck3v3_compensator()
-    v_target = 0.8 * (c.r1_ohm + c.rbot_ohm) / c.rbot_ohm
+    v_target = C.BUCK3V3["v_ref_v"] * (c.r1_ohm + c.rbot_ohm) / c.rbot_ohm
     ripple_mv = 1e3 * (vals["vmax"] - vals["vmin"])
 
     # What this repository's own switching simulator says, so the two are

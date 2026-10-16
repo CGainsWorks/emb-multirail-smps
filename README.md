@@ -59,18 +59,20 @@ means and have to agree to numerical precision. They do:
 |---|---|---|
 | +5V Type II | 0.0000 dB | 0.000 deg |
 | +12V Type II | 0.0000 dB | 0.000 deg |
-| +3V3 Type III | 0.0001 dB | 0.110 deg |
+| +3V3 Type III | 0.0001 dB | 0.099 deg |
 | input filter | 0.0000 dB | magnitude only |
 
 The enforced tolerance is 0.01 dB and 0.2 degrees, set just above what is
 achieved rather than at a comfortable round number, so it is a guarantee rather
-than somewhere for drift to hide. The 0.110 degrees is the whole of the
+than somewhere for drift to hide. The 0.099 degrees is the whole of the
 disagreement and it is explained: the deck's amplifier has a gain of a million
 and the closed form it is compared against has an infinite one.
 
-The switching deck is also run. ngspice settles the +3V3 rail at **3.3185 V**
-against the 3.3185 V the feedback divider asks for, and reads 3.86 mVpp of
-ripple against 2.74 mVpp from the simulator here. The two are compared against
+The switching deck is also run. ngspice settles the +3V3 rail at **3.3210 V**
+against the 3.3210 V the feedback divider asks for, and reads 4.23 mVpp of
+ripple against 2.74 mVpp from the simulator here. That factor of 1.54 is close
+to the 1.6 the check allows, and it grew from 1.41 when the TPS54317's 0.891 V
+reference replaced the assumed 0.8 V. The two are compared against
 each other rather than only against the 20 mVpp limit, because both can sit
 under a limit while disagreeing by a factor of two, and that disagreement is
 the interesting number.
